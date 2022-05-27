@@ -22,7 +22,7 @@ class Data():
         
     Examples:
         >>> d = Data("data.txt")
-        >>> d.get_job_durations()
+        >>> d.get_job_durations() # get the durations: list of list of integers [[J1, dur1, dur2, dur3], [J2, dur1, dur2, dur3] ...]
         >>> print(d) 
            Job i	dur J/M1	dur J/M2	dur J/M3
             [	1	,	 	7	,	 	1	,	 	6	]
@@ -36,8 +36,8 @@ class Data():
     def __init__(self, path):
         
         """
-        path: path to the data file if you want to use a text file to store data
-        
+        path: path to the data file if you want 
+            to use a text file to store data;
         """
         self.path = path 
         
@@ -85,7 +85,3 @@ class Data():
 
         return "Job Shop scheduling with {} jobs and {} machines. \nThe durations data: \n".format(
             self.get_jobs_nb(), self.get_machines_nb()) + "\n".join(["\t".join(i) for i in data]) # print the data
-
-data_path = 'jackson_job_shop_scheduling/jackson_job_shop_scheduling/input.txt'       
-d = Data(data_path)
-print(d)
