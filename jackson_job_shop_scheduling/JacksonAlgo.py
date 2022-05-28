@@ -1,4 +1,6 @@
 """Example of code."""
+
+from .utils import gant_list
 import data 
 import os
 import shutil
@@ -70,7 +72,7 @@ class JackAlgo():
     
     def get_cmax_virtual(self):
         
-        cmaxValue_list, job_sequence = [], []
+        cmaxValue_list, job_sequence, flatten_result = [], [], []
         for T in self.clean_data():
             sort_1 = sorted(T, key=operator.itemgetter(1))
             sort_2 = sorted(T, key=operator.itemgetter(2), reverse=True)
@@ -91,6 +93,7 @@ class JackAlgo():
             C = A + B 
             for i in range(len(C)):
                 job_sequence.append(C[i][0])
+                flatten_result.append(C[i][0])
             
             job_dur, cmax_values = [], []
 
@@ -105,13 +108,38 @@ class JackAlgo():
                     cmax_values.append([cmax_values[i - 1][1], cmax_values[i-1][1] + C[i][2]])
             # Save the cmax value
             cmaxValue_list.append(cmax_values[-1][1])
+            flatten_result.append(cmax_values[-1][1])
             
-        return [job_sequence[i:i+self.nb_jobs] for i in range(0, len(job_sequence), self.nb_jobs)], cmaxValue_list
-            
-              
-    def __str__(self):
+        return [flatten_result, [job_sequence[i:i+self.nb_jobs] for i in range(0, 
+                                len(job_sequence), self.nb_jobs)], cmaxValue_list]
+        
+    def gant_data(self):
 
-        return str(self.get_cmax_virtual())
+        flatten_result = self.get_cmax_virtual()[0]
+        list_data = []
+        gant_data = []
+        l_ = self.nb_jobs + 1
+        for i in range(len(flatten_result) // l_):
+            list_data.append(flatten_result[i * l_:(i + 1) * l_])
+        
+        for p in range(len(list_data)):
+    
+            h, hc = [], []
+            for i in range(len(list_data[p]) - 1):
+                print("{}".format(list_data[p][i]))
+                h.append(list_data[p][i])
+                fvg = str(list_data[p][i])+"=>"
+                hc.append(fvg)
+
+            list_data_copy = list_data[p][:-1]
+            # print(fl_1)
+            for i in list_data_copy:
+                gant_data.append(self.get_list()[i - 1])
+                
+        return gant_data
+        
+    def __str__(self):
+        return str(self.gant_data())
     
 
 data_path = 'jackson_job_shop_scheduling/jackson_job_shop_scheduling/input.txt'       
