@@ -1,7 +1,28 @@
 """Example of code."""
 import data 
-import operator
+import os
+import shutil
+import getpass
+import hashlib
+import sys
+import io
+import email.mime.application
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import mimetypes
+import smtplib
+from random import randrange
+import numpy as np
 import csv
+import operator
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors as cl
+from reportlab.lib.enums import TA_JUSTIFY
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
 
 class JackAlgo():
     
@@ -47,8 +68,50 @@ class JackAlgo():
             
         return JackAlgo.list_cleaned # return the cleaned list of lists
     
+    def get_cmax_virtual(self):
+        
+        cmaxValue_list, job_sequence = [], []
+        for T in self.clean_data():
+            sort_1 = sorted(T, key=operator.itemgetter(1))
+            sort_2 = sorted(T, key=operator.itemgetter(2), reverse=True)
+            
+            A, B, C = [], [], []
+            # append to A
+            for j in range(len(sort_1)):
+                if int(sort_1[j][1]) < int(sort_1[j][2]) or int(sort_1[j][1]) == int(sort_1[j][2]):
+                    A.append(sort_1[j])
+            
+            #Append to B       
+            l = len(sort_2)
+            for j in range(l):
+                if int(sort_2[j][1]) > int(sort_2[j][2]):
+                    B.append(sort_2[j])
+                
+            # Extend A and B
+            C = A + B 
+            for i in range(len(C)):
+                job_sequence.append(C[i][0])
+            
+            job_dur, cmax_values = [], []
+
+            job_dur.append([0, C[0][1]])
+            for i in range(1, len(C)):
+                job_dur.append([job_dur[i-1][1], job_dur[i-1][1] + C[i][1]])
+            cmax_values.append([job_dur[0][1], job_dur[0][1]+C[0][2]])
+            for i in range(1, len(job_dur)):
+                if job_dur[i][1] >= cmax_values[i-1][1]:
+                    cmax_values.append([job_dur[i][1], job_dur[i][1]+C[i][2]])
+                else:
+                    cmax_values.append([cmax_values[i - 1][1], cmax_values[i-1][1] + C[i][2]])
+            # Save the cmax value
+            cmaxValue_list.append(cmax_values[-1][1])
+            
+        return [job_sequence[i:i+self.nb_jobs] for i in range(0, len(job_sequence), self.nb_jobs)], cmaxValue_list
+            
+              
     def __str__(self):
-        return str(self.clean_data())
+
+        return str(self.get_cmax_virtual())
     
 
 data_path = 'jackson_job_shop_scheduling/jackson_job_shop_scheduling/input.txt'       
