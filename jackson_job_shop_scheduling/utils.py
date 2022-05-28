@@ -1,6 +1,7 @@
 
 import os
 import sys
+import shutil
 
 def gant_list(C):
     db1, db2 = [], []
@@ -15,3 +16,16 @@ def gant_list(C):
         else:
             db2.append([db2[i - 1][1], db2[i - 1][1] + C[i][2]])
     return db1, db2
+
+def create_dir(path):
+    dir = path
+    if os.path.exists(dir):
+        shutil.rmtree(dir)
+    os.makedirs(dir)
+
+    os.makedirs('output/ImagesOutput')
+    os.makedirs('output/PdfsOutput')
+    os.makedirs('output/TxtsOutput')
+    pdf_name = "output/PdfsOutput/Algo_Cds_Output.pdf"
+    
+    return pdf_name

@@ -1,6 +1,6 @@
 """Example of code."""
 
-from .utils import gant_list
+from utils import gant_list, create_dir
 import data 
 import os
 import shutil
@@ -35,13 +35,14 @@ class JackAlgo():
     list_cleaned = []
     list_cleaned_ = []
     
-    def __init__(self, duration_data):
+    def __init__(self, duration_data, output_dir = 'output'):
         
         """
         """
         self.duration_data = duration_data
         self.nb_jobs = len(self.duration_data)
         self.nb_machines = len(self.duration_data[0]) - 1
+        self.output_dir = output_dir
 
     def get_list(self):
         list_ = []
@@ -115,31 +116,93 @@ class JackAlgo():
         
     def gant_data(self):
 
+        global list_data_copy, gant_data, list_list_gant
         flatten_result = self.get_cmax_virtual()[0]
         list_data = []
         gant_data = []
         l_ = self.nb_jobs + 1
+        list_list_gant = []
         for i in range(len(flatten_result) // l_):
             list_data.append(flatten_result[i * l_:(i + 1) * l_])
-        
         for p in range(len(list_data)):
-    
-            h, hc = [], []
-            for i in range(len(list_data[p]) - 1):
-                print("{}".format(list_data[p][i]))
-                h.append(list_data[p][i])
-                fvg = str(list_data[p][i])+"=>"
-                hc.append(fvg)
-
+            db1, db3 = [], []
+            list_excel = []
+            #print(list_data[p])
             list_data_copy = list_data[p][:-1]
+            gant_data = []
             # print(fl_1)
             for i in list_data_copy:
                 gant_data.append(self.get_list()[i - 1])
-                
-        return gant_data
-        
+            #print(gant_data)
+            lc = []
+            for j in gant_data:
+                for i in range(1, len(gant_data[0]) - 1):
+                    lc.append([j[0], j[i], j[i + 1]])
+
+            # print(lc)
+            b = len(self.get_list()[0]) - 2
+            c = len(list_data_copy)
+            lcf = []
+            for j in range(0, b):
+                x = b + j
+                for i in range(0, c):
+                    lcf.append(lc[x - b])
+                    x += b
+
+            cc = lcf[0:c]
+            # print("rfrfr",cc)
+            db1 = gant_list(cc)[0]
+            db3 = gant_list(cc)[1]
+            list_excel = [db1, db3]
+            #print( db1 )
+            #print( db3 )
+            for i in range(1, b):
+                cc1 = lcf[(c * i):c * (i + 1)]
+                db4 = []
+                db4.append([db3[0][1], db3[0][1] + cc1[0][2]])
+                for i in range(1, len(db3)):
+                    if db3[i][1] >= db4[i - 1][1]:
+                        db4.append([db3[i][1], db3[i][1] + cc1[i][2]])
+                    else:
+                        db4.append([db4[i - 1][1], db4[i - 1][1] + cc1[i][2]])
+                #print( db4 )
+                db3 = db4
+                list_excel.append(db4)
+                #print(list_excel)
+            list_list_gant.append(list_excel)
+        return list_list_gant, list_data, gant_data, self.nb_jobs, self.nb_machines
+    
+    def save_output(self):
+        pdf_path = create_dir(self.path_output)
+        return pdf_path
+    
+    def plot_gant(self):
+
+        global list_data_copy, gant_data, list_list_gant
+        flatten_result = self.get_cmax_virtual()[0]
+        list_data = []
+        l_ = self.nb_jobs + 1
+        for i in range(len(flatten_result) // l_):
+            list_data.append(flatten_result[i * l_:(i + 1) * l_])
+        for p in range(len(list_data)):
+            ded = open("output/TxtsOutput/gantt__file({0}).txt".format(p), "w")
+            k = 0
+
+            for i in self.gant_data()[0]:
+                print(i)
+                k += 1
+                ch = "{0},".format(k)
+                for j in i:
+                    ch += "{0},{1},".format(j[0], j[1])
+                ch1 = ch[:-1] + "\n"
+            ded.write(ch1)
+            ded.close()
+            f = int(l_ / 2) + 1
+            
+        return ch1
+            
     def __str__(self):
-        return str(self.gant_data())
+        return str(self.plot_gant())
     
 
 data_path = 'jackson_job_shop_scheduling/jackson_job_shop_scheduling/input.txt'       
