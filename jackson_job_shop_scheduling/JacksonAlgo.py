@@ -1,6 +1,6 @@
 """Example of code."""
 
-from utils import gant_list, create_dir
+from utils import gant_list, create_dir, func_trait
 import data 
 import os
 import shutil
@@ -8,23 +8,14 @@ import getpass
 import hashlib
 import sys
 import io
-import email.mime.application
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import mimetypes
 import smtplib
 from random import randrange
 import numpy as np
+import matplotlib.pyplot as plt
 import csv
 import operator
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from reportlab.lib import colors as cl
-from reportlab.lib.enums import TA_JUSTIFY
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
+
 
 class JackAlgo():
     
@@ -117,14 +108,22 @@ class JackAlgo():
     def gant_data(self):
 
         global list_data_copy, gant_data, list_list_gant
+        create_dir(self.output_dir)
         flatten_result = self.get_cmax_virtual()[0]
         list_data = []
         gant_data = []
         l_ = self.nb_jobs + 1
+        klk, klks = {}, {}
         list_list_gant = []
         for i in range(len(flatten_result) // l_):
             list_data.append(flatten_result[i * l_:(i + 1) * l_])
         for p in range(len(list_data)):
+            h, hc = [], []
+            for i in range(len(list_data[p]) - 1):
+                #print("{}".format(s[p][i]))
+                h.append(list_data[p][i])
+                fvg = str(list_data[p][i])+"=>"
+                hc.append(fvg)
             db1, db3 = [], []
             list_excel = []
             #print(list_data[p])
@@ -170,13 +169,93 @@ class JackAlgo():
                 list_excel.append(db4)
                 #print(list_excel)
             list_list_gant.append(list_excel)
-        return list_list_gant, list_data, gant_data, self.nb_jobs, self.nb_machines
+            
+            txt_gant = open("output/TxtsOutput/gantt_file({0}).txt".format(p), "w")
+            k = 0
+            for i in list_excel:
+                k += 1
+                ch = "{0},".format(k)
+                for j in i:
+                    ch += "{0},{1},".format(j[0], j[1])
+                ch1 = ch[:-1] + "\n"
+                txt_gant.write(ch1)
+            txt_gant.close()
+            f = int(l_ / 2) + 1
+            new = np.array(np.loadtxt("output/TxtsOutput/gantt_file({0}).txt".format(
+                p), delimiter=",", unpack=True))
+            #print(new)
+            htl = []
+            for j in range(1, new.shape[0]):
+                htl.append(new[j][0])
+            # print(htl)
+            ht = list(set(htl))
+            ht = sorted(ht)
+            htt1 = [(ht[i] + ht[i + 1]) / 2 for i in range(len(ht) - 1)]
+            # print(set(htl))
+            htt = sorted(htt1)
+            #print(htt)
+            cmap = plt.get_cmap("gnuplot")
+            colors = [cmap(i) for i in np.linspace(0, 1, 2 * l_)]
+            for i in range(1, new.shape[0] - 1, 2):
+                plt.hlines(new[0], new[i], new[i + 1], colors=colors[i], lw=28)
+                plt.text(htt[int((i - 1) / 2)], 1, str(h[int(i / 2)]))
+                cv = 0.0
+                while cv < new[0][0]:
+                    if cv == 0.0:
+                        plt.text(new[i][0]-0.1/2, cv-0.25,
+                                str(new[i][0]), color=colors[i])
+                        plt.text(new[i+1][0]-0.1/2, cv-0.25,
+                                str(new[i+1][0]), color=colors[i])
+                    plt.text(new[i][0]-0.1, cv, "|", color=colors[i])
+                    plt.text(new[i+1][0]-0.1, cv, "|", color=colors[i])
+                    cv += 0.2
+                plt.grid(True)
+                
+            for j in range(1, new.shape[1]):
+                for o in range(1, new.shape[0]):
+                    htl.append(new[o][0])
+                ht = list(set(htl))
+                htt = [(ht[i] + ht[i + 1]) / 2 for i in range(len(ht) - 1)]
+                for i in range(1, new.shape[0] - 1, 2):
+                    plt.hlines(new[0][j], new[i][j], new[i + 1]
+                            [j], colors=colors[i], lw=28, )
+                    plt.text((new[i + 1][j] + new[i][j]) / 2,
+                            new[0][j], str(h[int(i / 2)]))
+                    cv = 0.0
+                    while cv < new[0][j]:
+                        if cv == 0.0:
+                            plt.text(new[i][j]-0.05, cv+(new[0][j]-1)
+                                    * .1, str(new[i][j]), color=colors[i])
+                            plt.text(new[i+1][j]-.05, cv+(new[0][j]-1)
+                                    * .1, str(new[i+1][j]), color=colors[i])
+                        plt.text(new[i][j]-0.1, cv, "|", color=colors[i])
+                        plt.text(new[i+1][j]-0.1, cv, "|", color=colors[i])
+                        cv += 0.2
+                    plt.grid(True)
+            
+            plt.xlabel("time(j)")
+            plt.title("Ordanncement FlowShop: {0} machines et {1} Taches".format(b + 1,
+                                                                             l_ - 1) + "\n" + "\t" + "Diagramme de Gantt (seq ={0} avec Cmax({2})={1})".format(
+            h, list_excel[-1][-1][-1], p))
+            chh = ""
+            for i in hc:
+                chh += i
+            chh = chh[:-2]
+            klk[chh] = [list_data[p][l_-1], list_excel[-1][-1][-1]]
+            klks[chh] = [list_excel[-1][-1][-1]]
+            plt.ylim(0, b + 2)
+            plt.xlim([0, list_excel[-1][-1][-1] + 2])
+            plt.margins(0, 1)
+            S = func_trait(list_excel[-1][-1][-1], b+1, 0, "|")
+            plt.annotate("Cmax=" + str(list_excel[-1][-1][-1]), xy=(list_excel[-1][-1][-1], b+1), xytext=(
+                0.75*list_excel[-1][-1][-1], b+1.6), arrowprops=dict(facecolor='green', shrink=0.05))
+            plt.text( list_excel[-1][-1][-1], b + 1, S )
+            manager = plt.get_current_fig_manager()
+            plt.savefig("output/ImagesOutput/output_diagram_gantt({0}).png".format(p), bbox_inches='tight')
+            
+        return colors, list_list_gant, list_data, gant_data, self.nb_jobs, self.nb_machines
     
-    def save_output(self):
-        pdf_path = create_dir(self.path_output)
-        return pdf_path
-    
-    def plot_gant(self):
+        '''def plot_gant(self):
 
         global list_data_copy, gant_data, list_list_gant
         flatten_result = self.get_cmax_virtual()[0]
@@ -185,7 +264,7 @@ class JackAlgo():
         for i in range(len(flatten_result) // l_):
             list_data.append(flatten_result[i * l_:(i + 1) * l_])
         for p in range(len(list_data)):
-            ded = open("output/TxtsOutput/gantt__file({0}).txt".format(p), "w")
+            ded = open("output/TxtsOutput/gantt_file({0}).txt".format(p), "w")
             k = 0
 
             for i in self.gant_data()[0]:
@@ -199,10 +278,10 @@ class JackAlgo():
             ded.close()
             f = int(l_ / 2) + 1
             
-        return ch1
+        return ch1'''
             
     def __str__(self):
-        return str(self.plot_gant())
+        return str(self.gant_data()[0])
     
 
 data_path = 'jackson_job_shop_scheduling/jackson_job_shop_scheduling/input.txt'       
