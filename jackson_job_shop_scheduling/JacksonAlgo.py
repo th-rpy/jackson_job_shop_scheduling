@@ -234,8 +234,8 @@ class JackAlgo():
                     plt.grid(True)
             
             plt.xlabel("time(j)")
-            plt.title("Ordanncement FlowShop: {0} machines et {1} Taches".format(b + 1,
-                                                                             l_ - 1) + "\n" + "\t" + "Diagramme de Gantt (seq ={0} avec Cmax({2})={1})".format(
+            plt.title("Job Scheduling Problem: {1} Jobs through {0} Machines".format(b + 1,
+                         l_ - 1) + "\n" + "\t" + "Gant Diagram (seq ={0} with Cmax({2})={1})".format(
             h, list_excel[-1][-1][-1], p))
             chh = ""
             for i in hc:
@@ -255,30 +255,7 @@ class JackAlgo():
             
         return colors, list_list_gant, list_data, gant_data, self.nb_jobs, self.nb_machines
     
-        '''def plot_gant(self):
-
-        global list_data_copy, gant_data, list_list_gant
-        flatten_result = self.get_cmax_virtual()[0]
-        list_data = []
-        l_ = self.nb_jobs + 1
-        for i in range(len(flatten_result) // l_):
-            list_data.append(flatten_result[i * l_:(i + 1) * l_])
-        for p in range(len(list_data)):
-            ded = open("output/TxtsOutput/gantt_file({0}).txt".format(p), "w")
-            k = 0
-
-            for i in self.gant_data()[0]:
-                print(i)
-                k += 1
-                ch = "{0},".format(k)
-                for j in i:
-                    ch += "{0},{1},".format(j[0], j[1])
-                ch1 = ch[:-1] + "\n"
-            ded.write(ch1)
-            ded.close()
-            f = int(l_ / 2) + 1
-            
-        return ch1'''
+    
             
     def __str__(self):
         return str(self.gant_data()[0])

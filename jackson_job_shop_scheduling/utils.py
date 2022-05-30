@@ -81,6 +81,6 @@ def create_pdf_file(story, pdf_name = 'Algo_Cds_Output.pdf'):
     Story.append(Paragraph(contexte, styles["BodyText"]))
     Story.append(Spacer(5, 10))
     Story.append(Paragraph(contexte_2, styles["BodyText"]))
-    doc.build(Story)
+    return doc, Story
     
 create_pdf_file('story','Algo_Cds_Output.pdf')
