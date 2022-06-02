@@ -1,6 +1,6 @@
 """Example of code."""
 
-from utils import gant_list, create_dir, func_trait
+from utils import gant_list, create_dir, func_trait, create_pdf_file, add_table_to_pdf
 import data 
 import os
 import shutil
@@ -108,6 +108,9 @@ class JackAlgo():
     def gant_data(self):
 
         global list_data_copy, gant_data, list_list_gant
+        doc, story = create_pdf_file()
+        table = self.prepare_table()
+        story = add_table_to_pdf(table, story)
         create_dir(self.output_dir)
         flatten_result = self.get_cmax_virtual()[0]
         list_data = []
@@ -252,13 +255,26 @@ class JackAlgo():
             plt.text( list_excel[-1][-1][-1], b + 1, S )
             manager = plt.get_current_fig_manager()
             plt.savefig("output/ImagesOutput/output_diagram_gantt({0}).png".format(p), bbox_inches='tight')
-            
-        return colors, list_list_gant, list_data, gant_data, self.nb_jobs, self.nb_machines
+        doc.build(story)
+        return list_list_gant, list_data, gant_data, self.nb_jobs, self.nb_machines
     
+    def prepare_table(self):
+        data = [i.copy() for i in self.duration_data]
+        l1= len(data)
+        l0 = len(data[0])
+        machines = ['Job / Machine']
+        machines.extend(['M ' + str(i) for i in range(1, l1-1)])
+        for i in range(l1):
+            data[i][0] = 'J ' + str(data[i][0])
+        data.insert(0, machines)
+        return data
     
-            
+    def problem_details(self):
+        
+        return self.duration_data, self.nb_jobs, self.nb_machines
+        
     def __str__(self):
-        return str(self.gant_data()[0])
+        return str(self.gant_data())
     
 
 data_path = 'jackson_job_shop_scheduling/jackson_job_shop_scheduling/input.txt'       
