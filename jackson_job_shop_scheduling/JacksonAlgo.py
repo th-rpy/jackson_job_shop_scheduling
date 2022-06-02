@@ -223,15 +223,15 @@ class JackAlgo():
                 plt.hlines(new[0], new[i], new[i + 1], colors=colors[i], lw=28)
                 plt.text(htt[int((i - 1) / 2)], 1, str(h[int(i / 2)]))
                 cv = 0.0
-                while cv < new[0][0]:
+                """while cv < new[0][0]:
                     if cv == 0.0:
                         plt.text(new[i][0]-0.1/2, cv-0.25,
                                 str(new[i][0]), color=colors[i])
                         plt.text(new[i+1][0]-0.1/2, cv-0.25,
                                 str(new[i+1][0]), color=colors[i])
-                    plt.text(new[i][0]-0.1, cv, "|", color=colors[i])
-                    plt.text(new[i+1][0]-0.1, cv, "|", color=colors[i])
-                    cv += 0.2
+                    #plt.text(new[i][0]-0.1, cv, "|", color=colors[i])
+                    #plt.text(new[i+1][0]-0.1, cv, "|", color=colors[i])
+                    cv += 0.2"""
                 plt.grid(True)
                 
             for j in range(1, new.shape[1]):
@@ -245,15 +245,16 @@ class JackAlgo():
                     plt.text((new[i + 1][j] + new[i][j]) / 2,
                             new[0][j], str(h[int(i / 2)]))
                     cv = 0.0
-                    while cv < new[0][j]:
+                    """while cv < new[0][j]:
                         if cv == 0.0:
-                            plt.text(new[i][j]-0.05, cv+(new[0][j]-1)
-                                    * .1, str(new[i][j]), color=colors[i])
-                            plt.text(new[i+1][j]-.05, cv+(new[0][j]-1)
-                                    * .1, str(new[i+1][j]), color=colors[i])
-                        plt.text(new[i][j]-0.1, cv, "|", color=colors[i])
-                        plt.text(new[i+1][j]-0.1, cv, "|", color=colors[i])
-                        cv += 0.2
+                            pass
+                            #plt.text(new[i][j]-0.05, cv+(new[0][j]-1)
+                                    #* .1, str(new[i][j]), color=colors[i])
+                            #plt.text(new[i+1][j]-.05, cv+(new[0][j]-1)
+                                    #* .1, str(new[i+1][j]), color=colors[i])
+                        #plt.text(new[i][j]-0.1, cv, "|", color=colors[i])
+                        #plt.text(new[i+1][j]-0.1, cv, "|", color=colors[i])
+                        cv += 0.2"""
                     plt.grid(True)
             
             plt.xlabel("Time(j)")
@@ -279,20 +280,24 @@ class JackAlgo():
             plt.savefig("output/ImagesOutput/Gantt_Chart_virtual{0}_cmax_({1}).png".format(p, list_excel[-1][-1][-1]), bbox_inches='tight')
             plt.clf()
 
-        return story, list_data, klks, klk #, list_list_gant, list_data, gant_data, self.nb_jobs, 
-                                            #self.nb_machines dict(sorted(klks.items(), key=lambda item: item[1]))
+        return story, list_data, dict(sorted(klks.items(), key=lambda item: item[1])), klk #, list_list_gant, list_data, gant_data, self.nb_jobs, 
+                                            #self.nb_machines 
     
     def add_virtual_results(self):
         styles = getSampleStyleSheet()
         Story, _ ,result_final, dict_results = self.gantt_chart()
+        result_final = sorted(result_final.items(), key=operator.itemgetter(1))
         nb_pb = 0 
+        nb_final = 0
+        paths = []
         for key, value in dict_results.items():
+            
             nb_pb +=1
             ptext = "<font size=13 color=green>{0}) The result of subproblem number {0} solved by Johnson's algorithm is : </font>".format(
             nb_pb)
             Story.append(Paragraph(ptext, styles["Normal"]))
             Story.append(Spacer(1, 12))
-            ptext = "The optimal scheduling is therefore: {0}".format(key) + "\n" \
+            ptext = "The optimal scheduling is therefore: {0}".format(key) \
                                 + "with cmax value of the real problem in this case is {0}".format(value[1])+"\n "
             ptext = ptext.replace(' ', '&nbsp;')
             ptext = ptext.replace('\n', '<br />')
@@ -300,7 +305,20 @@ class JackAlgo():
             Story.append(Paragraph(ptext, styles["Normal"]))
             Story.append(Spacer(1, 12))
             im = Image("output/ImagesOutput/Gantt_Chart_virtual{0}_cmax_({1}).png".format(nb_pb - 1, value[1]), hAlign= 'LEFT')
-            Story.append(im)
+            paths.append(value[1])
+            Story.append(im) 
+            if nb_pb == self.nb_machines - 1:
+                break
+        idx = paths.index(min(paths))
+        Story.append(Spacer(1, 12))
+        Story = self.add_section_to_pdf(Story, 'Final Scheduling Result:', "To conclude, among the results of the subproblems, we retain the following optimal sequence solution :|| {0} || with a value of Cmax = {1} ".format(
+            result_final[0][0], result_final[0][1]))
+        
+        im_final = Image("output/ImagesOutput/Gantt_Chart_virtual{0}_cmax_({1}).png".format(idx, 
+                                                                                            min(paths)), 
+                                                                                    hAlign= 'LEFT')
+        Story.append(im_final)
+        print(nb_final/2)
         return Story
     
     def generate_pdf_file(self):

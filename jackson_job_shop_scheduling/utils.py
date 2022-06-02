@@ -41,7 +41,7 @@ def create_dir(path):
     os.makedirs(dir)
 
     os.makedirs(dir + '/ImagesOutput')
-    os.makedirs(dir + '/PdfsOutput')
+    #os.makedirs(dir + '/PdfsOutput')
     os.makedirs(dir + '/TxtsOutput')
     pdf_name = dir + "/PdfsOutput/Algo_Cds_Output.pdf"
     
@@ -53,7 +53,7 @@ def func_trait(x, y, h, s):
         S += x * " " + s + "\n"
     return S
 
-def create_pdf_file(pdf_name = 'Algo_Cds_Output.pdf'): 
+def create_pdf_file(pdf_name = 'output/Algo_Cds_Output.pdf'): 
 
     doc = SimpleDocTemplate(pdf_name, pagesize=letter,
                             rightMargin=15, leftMargin=15,
