@@ -118,12 +118,12 @@ class JackAlgo():
         return [flatten_result, [job_sequence[i:i+self.nb_jobs] for i in range(0, 
                                 len(job_sequence), self.nb_jobs)], cmaxValue_list]
         
-    def gant_data(self):
+    def gantt_chart(self):
 
         global list_data_copy, gant_data, list_list_gant
         
         create_dir(self.output_dir)
-        doc, story = create_pdf_file()
+        _, story = create_pdf_file()
         story = self.add_section_to_pdf(story, "Algorithm:", JackAlgo.Algo_details)
 
         story = self.add_section_to_pdf(story, 
@@ -131,7 +131,7 @@ class JackAlgo():
                                         self.problem_details()[1])
         table = self.prepare_table()
         story = add_table_to_pdf(table, story)
-        
+        story = self.add_section_to_pdf(story, "Visualizing Results with Gantt Charts: ", "")
         flatten_result = self.get_cmax_virtual()[0]
         list_data = []
         gant_data = []
@@ -256,28 +256,58 @@ class JackAlgo():
                         cv += 0.2
                     plt.grid(True)
             
-            plt.xlabel("time(j)")
+            plt.xlabel("Time(j)")
+            plt.ylabel('Machines')
             plt.title("Job Scheduling Problem: {1} Jobs through {0} Machines".format(b + 1,
-                         l_ - 1) + "\n" + "\t" + "Gant Diagram (seq ={0} with Cmax({2})={1})".format(
+                         l_ - 1) + "\n" + "\t" + "Gantt Chart (seq ={0} with Cmax_{2} = {1})".format(
             h, list_excel[-1][-1][-1], p))
             chh = ""
             for i in hc:
                 chh += i
             chh = chh[:-2]
             klk[chh] = [list_data[p][l_-1], list_excel[-1][-1][-1]]
-            klks[chh] = [list_excel[-1][-1][-1]]
+            klks[chh] = list_excel[-1][-1][-1]
+            plt.yticks([i for i in range(1, b + 2)])
             plt.ylim(0, b + 2)
             plt.xlim([0, list_excel[-1][-1][-1] + 2])
             plt.margins(0, 1)
             S = func_trait(list_excel[-1][-1][-1], b+1, 0, "|")
-            plt.annotate("Cmax=" + str(list_excel[-1][-1][-1]), xy=(list_excel[-1][-1][-1], b+1), xytext=(
+            plt.annotate("Cmax = " + str(list_excel[-1][-1][-1]), xy=(list_excel[-1][-1][-1], b+1), xytext=(
                 0.75*list_excel[-1][-1][-1], b+1.6), arrowprops=dict(facecolor='green', shrink=0.05))
             plt.text( list_excel[-1][-1][-1], b + 1, S )
             manager = plt.get_current_fig_manager()
-            plt.savefig("output/ImagesOutput/output_diagram_gantt({0}).png".format(p), bbox_inches='tight')
-            
+            plt.savefig("output/ImagesOutput/Gantt_Chart_virtual{0}_cmax_({1}).png".format(p, list_excel[-1][-1][-1]), bbox_inches='tight')
+            plt.clf()
+
+        return story, list_data, klks, klk #, list_list_gant, list_data, gant_data, self.nb_jobs, 
+                                            #self.nb_machines dict(sorted(klks.items(), key=lambda item: item[1]))
+    
+    def add_virtual_results(self):
+        styles = getSampleStyleSheet()
+        Story, _ ,result_final, dict_results = self.gantt_chart()
+        nb_pb = 0 
+        for key, value in dict_results.items():
+            nb_pb +=1
+            ptext = "<font size=13 color=green>{0}) The result of subproblem number {0} solved by Johnson's algorithm is : </font>".format(
+            nb_pb)
+            Story.append(Paragraph(ptext, styles["Normal"]))
+            Story.append(Spacer(1, 12))
+            ptext = "The optimal scheduling is therefore: {0}".format(key) + "\n" \
+                                + "with cmax value of the real problem in this case is {0}".format(value[1])+"\n "
+            ptext = ptext.replace(' ', '&nbsp;')
+            ptext = ptext.replace('\n', '<br />')
+            ptext = ptext.replace('\t', '&nbsp;&nbsp;&nbsp;&nbsp;')
+            Story.append(Paragraph(ptext, styles["Normal"]))
+            Story.append(Spacer(1, 12))
+            im = Image("output/ImagesOutput/Gantt_Chart_virtual{0}_cmax_({1}).png".format(nb_pb - 1, value[1]), hAlign= 'LEFT')
+            Story.append(im)
+        return Story
+    
+    def generate_pdf_file(self):
+        story = self.gantt_chart()[0]
+        story = self.add_virtual_results()
+        doc = create_pdf_file()[0]
         doc.build(story)
-        return list_list_gant, list_data, gant_data, self.nb_jobs, self.nb_machines
     
     def prepare_table(self):
         data = [i.copy() for i in self.duration_data]
@@ -307,7 +337,7 @@ class JackAlgo():
         return story
         
     def __str__(self):
-        return str(self.gant_data())
+        return str(self.generate_pdf_file())
     
 
 data_path = 'jackson_job_shop_scheduling/jackson_job_shop_scheduling/input.txt'       

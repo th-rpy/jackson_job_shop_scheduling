@@ -122,5 +122,3 @@ def add_table_to_pdf(data, Story):
     Story.append(Spacer(1, 15))
     return Story
     
-"""create_pdf_file('Algo_Cds_Output.pdf')
-print(prepare_table([[1,2,3],[4,5,6]]))"""
