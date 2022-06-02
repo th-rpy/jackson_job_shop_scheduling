@@ -15,6 +15,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 import operator
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors as cl
+from reportlab.lib.enums import TA_JUSTIFY
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
 
 
 class JackAlgo():
@@ -109,6 +117,9 @@ class JackAlgo():
 
         global list_data_copy, gant_data, list_list_gant
         doc, story = create_pdf_file()
+        story = self.add_section_to_pdf(story, 
+                                        self.problem_details()[0], 
+                                        self.problem_details()[1])
         table = self.prepare_table()
         story = add_table_to_pdf(table, story)
         create_dir(self.output_dir)
@@ -270,8 +281,18 @@ class JackAlgo():
         return data
     
     def problem_details(self):
-        
-        return self.duration_data, self.nb_jobs, self.nb_machines
+        cntx  = "3.  Your Problem Details"
+        details = "Your problem is a job scheduling problem with {0} jobs and {1} machines.\n This table resume the \
+        tasks durations. Each task is a (job,machine) pair.".format(self.nb_jobs, self.nb_machines)
+        return cntx, details
+    
+    def add_section_to_pdf(self, story, title, content):
+        styles = getSampleStyleSheet()
+        story.append(Paragraph("<font size=15 color=black>{}</font>".format(title), styles["Normal"]))
+        story.append(Spacer(1, 20))
+        story.append(Paragraph(content, styles["Normal"]))
+        story.append(Spacer(1, 15))
+        return story
         
     def __str__(self):
         return str(self.gant_data())

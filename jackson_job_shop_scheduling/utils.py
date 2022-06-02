@@ -119,6 +119,7 @@ def add_table_to_pdf(data, Story):
                                 ('INNERGRID', (0, 0), (-1, -1), 0.25, "black"),
                                 ]))
     Story.append(table)
+    Story.append(Spacer(1, 15))
     return Story
     
 """create_pdf_file('Algo_Cds_Output.pdf')
