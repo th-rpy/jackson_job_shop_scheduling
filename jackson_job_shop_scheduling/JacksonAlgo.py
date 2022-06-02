@@ -33,6 +33,11 @@ class JackAlgo():
     list_pre_cleaned = []
     list_cleaned = []
     list_cleaned_ = []
+    Algo_details = "This heuristic simply consists in generating m-1 sub-problems of the 2-machine flow-shop type, solving them and selecting the best solution. \
+        The sub-problem k is defined by :\nProcessing time on the virtual machine 1 : pi1= the sum of pij (j in [1..k]) \nProcessing time on the virtual machine 2 : pi2= the sum of pij (j in [k+1 .. m]). \
+        \n For each of these problems, the optimal order is calculated with the Johnson algorithm and this order is then applied to the basic problem to obtain the Cmax(k).\
+        Then, it is enough to choose the best one on the whole Cmax(k)."
+    section_nb = 2
     
     def __init__(self, duration_data, output_dir = 'output'):
         
@@ -116,13 +121,17 @@ class JackAlgo():
     def gant_data(self):
 
         global list_data_copy, gant_data, list_list_gant
+        
+        create_dir(self.output_dir)
         doc, story = create_pdf_file()
+        story = self.add_section_to_pdf(story, "Algorithm:", JackAlgo.Algo_details)
+
         story = self.add_section_to_pdf(story, 
                                         self.problem_details()[0], 
                                         self.problem_details()[1])
         table = self.prepare_table()
         story = add_table_to_pdf(table, story)
-        create_dir(self.output_dir)
+        
         flatten_result = self.get_cmax_virtual()[0]
         list_data = []
         gant_data = []
@@ -266,6 +275,7 @@ class JackAlgo():
             plt.text( list_excel[-1][-1][-1], b + 1, S )
             manager = plt.get_current_fig_manager()
             plt.savefig("output/ImagesOutput/output_diagram_gantt({0}).png".format(p), bbox_inches='tight')
+            
         doc.build(story)
         return list_list_gant, list_data, gant_data, self.nb_jobs, self.nb_machines
     
@@ -281,15 +291,17 @@ class JackAlgo():
         return data
     
     def problem_details(self):
-        cntx  = "3.  Your Problem Details"
+        cntx  = "Your Problem Details:"
         details = "Your problem is a job scheduling problem with {0} jobs and {1} machines.\n This table resume the \
         tasks durations. Each task is a (job,machine) pair.".format(self.nb_jobs, self.nb_machines)
         return cntx, details
     
     def add_section_to_pdf(self, story, title, content):
+        JackAlgo.section_nb += 1
         styles = getSampleStyleSheet()
-        story.append(Paragraph("<font size=15 color=black>{}</font>".format(title), styles["Normal"]))
+        story.append(Paragraph("<font size=15 color=black>{}</font>".format(str(JackAlgo.section_nb) + '.   ' + title), styles["Normal"]))
         story.append(Spacer(1, 20))
+        content = content.replace('\n', '<br />')
         story.append(Paragraph(content, styles["Normal"]))
         story.append(Spacer(1, 15))
         return story
