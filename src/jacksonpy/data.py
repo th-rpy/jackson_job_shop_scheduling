@@ -1,5 +1,4 @@
 import csv
-from distutils import extension
 import os
 import shutil
 import getpass
@@ -55,6 +54,7 @@ class Data():
                     data = json.load(f)
             
                 durations_sorted_int = [[k+1] + list(map(int, v[1])) for k, v in enumerate(data.items())]
+                return durations_sorted_int
                     
             else:
                 file = open(self.path, 'r') # open the file
@@ -67,6 +67,7 @@ class Data():
                 for i in range(len(durations_sorted)):
                     for j in range(len(durations_sorted[i])):
                         durations_flatten.append(durations_sorted_int[i][j]) # add the durations to the list
+                return durations_sorted_int
                     
         except FileNotFoundError:
             print("File name not found") # if the file is not found
@@ -74,17 +75,16 @@ class Data():
         except IOError:
             print("Open file error") # if the file is not open
             return None
-        return durations_sorted_int #durations_flatten #
-    
+        
     def get_jobs_nb(self):
         return len(self.get_job_durations()[1])
     
     def get_machines_nb(self):
-        return len(self.get_job_durations()[1][0]) - 1 
+        return len(self.get_job_durations()[0]) - 1 
     
     def __str__(self):
         
-        durations = self.get_job_durations()[1] # get the durations
+        durations = self.get_job_durations() # get the durations
         list_jobs  = ["Job i"] # create a list to store the jobs
         for i in range(1, len(durations[0])):
             list_jobs.append("dur J/M{0}".format(i)) # add the jobs to the list
@@ -96,3 +96,6 @@ class Data():
 
         return "Job Shop scheduling with {} jobs and {} machines. \nThe durations data: \n".format(
             self.get_jobs_nb(), self.get_machines_nb()) + "\n".join(["\t".join(i) for i in data]) # print the data
+
+d = Data("jackson_job_shop_scheduling/tests/test_example/input.json")
+print(d)
