@@ -28,3 +28,13 @@ data = {
 
 dur = [[k+1] + list(map(int, v[1])) for k, v in enumerate(data.items())]
 print(dur)
+
+al = JackAlgo({
+    "Task 1": [3,4,6,5],
+    "Task 2": [2,3,6,9],
+    "Task 3": [8,9,2,6],
+    "Task 4": [7,6,3,2],
+    "Task 5": [3,6,4,5],
+    "Task 6": [5,8,7,9]
+})
+al.solve()
