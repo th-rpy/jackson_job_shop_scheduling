@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/th-rpy/jackson_job_shop_scheduling",
     project_urls={
-        "Bug Tracker": "https://github.com/pypa/sampleproject/issues",
+        "Bug Tracker": "https://github.com/th-rpy/jackson_job_shop_scheduling/issues",
     },
     classifiers=[
         "Programming Language :: Python :: 3",
