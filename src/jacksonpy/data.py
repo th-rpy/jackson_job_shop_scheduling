@@ -43,7 +43,7 @@ class Data():
         
     def get_job_durations(self):
         
-        global file 
+        global file , durations_sorted_int, durations_flatten
         
         try:
             file = open(self.path, 'r') # open the file
@@ -59,10 +59,10 @@ class Data():
                     
         except FileNotFoundError:
             print("File name not found") # if the file is not found
-            
+            return None
         except IOError:
             print("Open file error") # if the file is not open
-
+            return None
         return durations_sorted_int #durations_flatten #
     
     def get_jobs_nb(self):

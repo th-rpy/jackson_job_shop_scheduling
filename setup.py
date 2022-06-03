@@ -4,8 +4,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="JackPy",
-    version="0.0.1",
+    name="PyJackson",
+    version="0.1",
     author="Saraei Thamer",
     author_email="thamer.saraei@polymtl.ca",
     description="Python package to solve the job shop scheduling problem with Gantt chart as output",

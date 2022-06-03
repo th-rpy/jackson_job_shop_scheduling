@@ -1,7 +1,7 @@
 """Example of code."""
 
-from utils import gant_list, create_dir, func_trait, create_pdf_file, add_table_to_pdf
-import data 
+from jacksonpy.utils import gant_list, create_dir, func_trait, create_pdf_file, add_table_to_pdf
+from jacksonpy.data import *
 import os
 import shutil
 import getpass
@@ -356,11 +356,7 @@ class JackAlgo():
         return story
         
     def __str__(self):
-        return str(self.generate_pdf_file())
+        return "Your problem is a Job Shop scheduling of {0} tasks through {1} machines.".format(self.nb_jobs, self.nb_machines)
     
 
-data_path = 'jackson_job_shop_scheduling/jackson_job_shop_scheduling/input.txt'       
-d = data.Data(data_path) 
-data = d.get_job_durations()
-al = JackAlgo([[1, 7, 5, 6,9,10], [2, 4, 6, 5, 8,1], [3, 8, 2, 4,3,7], [4, 6, 3, 9,7,5], [5, 5, 7, 3,5,9]])
-print(al)
+

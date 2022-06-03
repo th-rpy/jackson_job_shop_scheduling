@@ -1,0 +1,4 @@
+reportlab
+numpy
+pandas
+matplotlib
