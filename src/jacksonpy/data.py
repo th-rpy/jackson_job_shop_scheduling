@@ -1,4 +1,5 @@
 import csv
+from distutils import extension
 import os
 import shutil
 import getpass
@@ -6,6 +7,7 @@ import hashlib
 import sys
 import io
 import operator
+import json
 
 
 class Data():
@@ -14,14 +16,14 @@ class Data():
     Class to store the data of the job shop scheduling problem 
     
     Args: 
-        path: path to the data file if you want to use a text file to store data
+        path: path to the data file if you want to use a text/Json/Csv file to store data
         
     Returns:
         durations_flatten: list of durations
         durations_sorted_int: list of lists of integers: 2d-array of durations
         
     Examples:
-        >>> d = Data("data.txt")
+        >>> d = Data("data.txt") # data.json or data.csv
         >>> d.get_job_durations() # get the durations: list of list of integers [[J1, dur1, dur2, dur3], [J2, dur1, dur2, dur3] ...]
         >>> print(d) 
            Job i	dur J/M1	dur J/M2	dur J/M3
@@ -44,18 +46,27 @@ class Data():
     def get_job_durations(self):
         
         global file , durations_sorted_int, durations_flatten
-        
+        extension = os.path.splitext(self.path)[1]
+        assert extension in ['.json', '.csv', '.txt'], "The extension of the file is not supported"
         try:
-            file = open(self.path, 'r') # open the file
-            Csv = csv.reader(file, delimiter=',') # read the file
-            durations_sorted = sorted(Csv, key=operator.itemgetter(0)) # sort the file by job number
-            nb_jobs = len(durations_sorted) # get the number of jobs
-            durations_sorted = sorted(durations_sorted, key=lambda x: int(x[0])) # sort the file by job number
-            durations_sorted_int = [[int(i) for i in lj] for lj in durations_sorted] # convert to a list of lists of integers
-            durations_flatten = [] # create a list to store the durations
-            for i in range(len(durations_sorted)):
-                for j in range(len(durations_sorted[i])):
-                    durations_flatten.append(durations_sorted_int[i][j]) # add the durations to the list
+            
+            if extension == '.json':
+                with open(self.path) as f:
+                    data = json.load(f)
+            
+                durations_sorted_int = [[k+1] + list(map(int, v[1])) for k, v in enumerate(data.items())]
+                    
+            else:
+                file = open(self.path, 'r') # open the file
+                Csv = csv.reader(file, delimiter=',') # read the file
+                durations_sorted = sorted(Csv, key=operator.itemgetter(0)) # sort the file by job number
+                nb_jobs = len(durations_sorted) # get the number of jobs
+                durations_sorted = sorted(durations_sorted, key=lambda x: int(x[0])) # sort the file by job number
+                durations_sorted_int = [[int(i) for i in lj] for lj in durations_sorted] # convert to a list of lists of integers
+                durations_flatten = [] # create a list to store the durations
+                for i in range(len(durations_sorted)):
+                    for j in range(len(durations_sorted[i])):
+                        durations_flatten.append(durations_sorted_int[i][j]) # add the durations to the list
                     
         except FileNotFoundError:
             print("File name not found") # if the file is not found

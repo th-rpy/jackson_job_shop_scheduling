@@ -45,11 +45,23 @@ class JackAlgo():
         """
         """
         self.duration_data = duration_data
+        if isinstance(self.duration_data, list): 
+            self.nb_machines = len(self.duration_data[0]) - 1
+        elif isinstance(self.duration_data, dict):
+            self.nb_machines = len(list(self.duration_data.values())[0])
+            self.duration_data = [[k+1] + list(map(int, v[1])) for k, v in enumerate(self.duration_data.items())]
         self.nb_jobs = len(self.duration_data)
-        self.nb_machines = len(self.duration_data[0]) - 1
         self.output_dir = output_dir
 
     def get_list(self):
+        
+        assert self.duration_data is not None, "duration_data is None"
+        assert self.duration_data[0] is not None, "duration_data[0] is None" 
+        assert len(self.duration_data[0]) == self.nb_machines + 1, "duration_data[0] is not of length {0}".format(self.nb_machines + 1)
+        assert isinstance(self.duration_data, list), "duration_data is not a list"
+        assert len(self.duration_data) == self.nb_jobs, "duration_data is not of length {0}".format(self.nb_jobs)
+        assert isinstance(self.duration_data[0], list), "duration_data is not a list"
+    
         list_ = []
         for n in range(len(sum(self.duration_data, [])) // (self.nb_machines + 1)):
             list_.append(sum(self.duration_data, [])[n * (self.nb_machines + 1):(n + 1) * (self.nb_machines + 1)])
@@ -366,5 +378,12 @@ class JackAlgo():
         return "Your problem is a Job Shop scheduling of {0} tasks through {1} machines.".format(self.nb_jobs, self.nb_machines)
     
 
-"""al = JackAlgo([[1, 2, 3, 4, 5], [2, 3, 4, 5, 1], [3, 4, 5, 1, 2], [4, 5, 1, 2, 3], [5, 1, 2, 3, 4]])
-al.solve()"""
+al = JackAlgo({
+    "Task 1": [3,4,6,5],
+    "Task 2": [2,3,6,9],
+    "Task 3": [8,9,2,6],
+    "Task 4": [7,6,3,2],
+    "Task 5": [3,6,4,5],
+    "Task 6": [5,8,7,9]
+})
+al.solve()
