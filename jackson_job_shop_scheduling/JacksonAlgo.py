@@ -270,6 +270,7 @@ class JackAlgo():
             klks[chh] = list_excel[-1][-1][-1]
             plt.yticks([i for i in range(1, b + 2)])
             plt.ylim(0, b + 2)
+            plt.xticks([i for i in range(0, list_excel[-1][-1][-1] + 2, 4)])
             plt.xlim([0, list_excel[-1][-1][-1] + 2])
             plt.margins(0, 1)
             S = func_trait(list_excel[-1][-1][-1], b+1, 0, "|")
@@ -332,7 +333,7 @@ class JackAlgo():
         l1= len(data)
         l0 = len(data[0])
         machines = ['Job / Machine']
-        machines.extend(['M ' + str(i) for i in range(1, l1-1)])
+        machines.extend(['M ' + str(i) for i in range(1, l0)])
         for i in range(l1):
             data[i][0] = 'J ' + str(data[i][0])
         data.insert(0, machines)
@@ -360,6 +361,6 @@ class JackAlgo():
 
 data_path = 'jackson_job_shop_scheduling/jackson_job_shop_scheduling/input.txt'       
 d = data.Data(data_path) 
-data = d.get_job_durations()[1]
-al = JackAlgo(data)
+data = d.get_job_durations()
+al = JackAlgo([[1, 7, 5, 6,9,10], [2, 4, 6, 5, 8,1], [3, 8, 2, 4,3,7], [4, 6, 3, 9,7,5], [5, 5, 7, 3,5,9]])
 print(al)

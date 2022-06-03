@@ -63,7 +63,7 @@ class Data():
         except IOError:
             print("Open file error") # if the file is not open
 
-        return durations_flatten, durations_sorted_int 
+        return durations_sorted_int #durations_flatten #
     
     def get_jobs_nb(self):
         return len(self.get_job_durations()[1])
