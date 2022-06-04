@@ -37,4 +37,7 @@ print(dur)
     "Task 5": [3,6,4,5],
     "Task 6": [5,8,7,9]
 })
+
+d = Data("jackson_job_shop_scheduling/tests/test_example/input.json")
+print(d)
 al.solve()"""

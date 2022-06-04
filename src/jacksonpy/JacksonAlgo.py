@@ -24,7 +24,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
-
+import warnings
 
 class JackAlgo():
     
@@ -38,8 +38,9 @@ class JackAlgo():
         The sub-problem k is defined by :\nProcessing time on the virtual machine 1 : pi1= the sum of pij (j in [1..k]) \nProcessing time on the virtual machine 2 : pi2= the sum of pij (j in [k+1 .. m]). \
         \n For each of these problems, the optimal order is calculated with the Johnson algorithm and this order is then applied to the basic problem to obtain the Cmax(k).\
         Then, it is enough to choose the best one on the whole Cmax(k)."
-    section_nb = 2
-    
+    nb_sec = 2
+    warnings.filterwarnings("ignore", category=FutureWarning)
+
     def __init__(self, duration_data, output_dir = 'output'):
         
         """
@@ -76,7 +77,7 @@ class JackAlgo():
         return (list_2)
     
     def clean_data(self):
-        
+        warnings.filterwarnings("ignore", category=FutureWarning)
         r = [i + 2 for i in range(self.nb_machines + 1 - 2)] # create a list of integers
         
         for i in r:
@@ -89,7 +90,7 @@ class JackAlgo():
         return JackAlgo.list_cleaned # return the cleaned list of lists
     
     def get_cmax_virtual(self):
-        
+        warnings.filterwarnings("ignore", category=FutureWarning)
         cmaxValue_list, job_sequence, flatten_result = [], [], []
         for T in self.clean_data():
             sort_1 = sorted(T, key=operator.itemgetter(1))
@@ -133,18 +134,19 @@ class JackAlgo():
         
     def solve(self):
 
-        global list_data_copy, gant_data, list_list_gant
-        
+        global list_data_copy, gant_data, list_list_gant, nb_sec
+        warnings.filterwarnings("ignore", category=FutureWarning)
         create_dir(self.output_dir)
         _, story = create_pdf_file()
-        story = self.add_section_to_pdf(story, "Algorithm:", JackAlgo.Algo_details)
+        nb_sec = JackAlgo.nb_sec + 1
+        story, nb_sec = self.add_section_to_pdf(story, "Algorithm:", JackAlgo.Algo_details, nb_sec)
 
-        story = self.add_section_to_pdf(story, 
+        story, nb_sec = self.add_section_to_pdf(story, 
                                         self.problem_details()[0], 
-                                        self.problem_details()[1])
+                                        self.problem_details()[1], nb_sec)
         table = self.prepare_table()
         story = add_table_to_pdf(table, story)
-        story = self.add_section_to_pdf(story, "Visualizing Results with Gantt Charts: ", "")
+        story = self.add_section_to_pdf(story, "Visualizing Results with Gantt Charts: ", "", nb_sec)
         flatten_result = self.get_cmax_virtual()[0].copy()
         list_data = []
         list_data_copy = []
@@ -299,16 +301,17 @@ class JackAlgo():
                 plt.savefig("output/ImagesOutput/Gantt_Chart_virtual{0}_cmax_({1}).png".format(p, list_excel[-1][-1][-1]), bbox_inches='tight')
                 plt.clf()
                 pbar.update(100/(self.nb_machines-1))
-        print('\n')
+        print('Done ;) ... \n')
+        print('The Gantt Chart images re saved in ' + os.getcwd() + '/output/ImagesOutput/')
         return story, list_data, dict(sorted(klks.items(), key=lambda item: item[1])), klk #, list_list_gant, list_data, gant_data, self.nb_jobs, 
                                             #self.nb_machines 
     
-    def add_virtual_results(self):
+    def add_virtual_results(self, lists):
         styles = getSampleStyleSheet()
-        Story, _ ,result_final, dict_results = self.solve()
+        __, _ ,result_final, dict_results = lists
+        Story = list(lists[0][0]).copy()
         result_final = sorted(result_final.items(), key=operator.itemgetter(1))
         nb_pb = 0 
-        nb_final = 0
         paths = []
         for key, value in dict_results.items():
             
@@ -332,20 +335,21 @@ class JackAlgo():
         idx = paths.index(min(paths))
         Story.append(Spacer(1, 12))
         Story = self.add_section_to_pdf(Story, 'Final Scheduling Result:', "To conclude, among the results of the subproblems, we retain the following optimal sequence solution :|| {0} || with a value of Cmax = {1} ".format(
-            result_final[0][0], result_final[0][1]))
+            result_final[0][0], result_final[0][1]), nb_sec)[0]
         
         im_final = Image("output/ImagesOutput/Gantt_Chart_virtual{0}_cmax_({1}).png".format(idx, 
                                                                                             min(paths)), 
                                                                                     hAlign= 'LEFT')
         Story.append(im_final)
-        print(nb_final/2)
         return Story
     
-    def generate_pdf_file(self):
-        story = self.solve()[0]
-        story = self.add_virtual_results()
+    def generate_pdf_file(self, results):
+        print('Generating PDF file...\n')
+        story = self.add_virtual_results(results)
         doc = create_pdf_file()[0]
         doc.build(story)
+        print('Done ;) ... \n')
+        print('The PDF file is saved in ' + os.getcwd() + 'output/Algo_Cds_Output.pdf')
     
     def prepare_table(self):
         data = [i.copy() for i in self.duration_data]
@@ -364,15 +368,16 @@ class JackAlgo():
         tasks durations. Each task is a (job,machine) pair.".format(self.nb_jobs, self.nb_machines)
         return cntx, details
     
-    def add_section_to_pdf(self, story, title, content):
-        JackAlgo.section_nb += 1
+    def add_section_to_pdf(self, story, title, content, section_nb ):
+        
         styles = getSampleStyleSheet()
-        story.append(Paragraph("<font size=15 color=black>{}</font>".format(str(JackAlgo.section_nb) + '.   ' + title), styles["Normal"]))
+        story.append(Paragraph("<font size=15 color=black>{}</font>".format(str(section_nb) + '.   ' + title), styles["Normal"]))
         story.append(Spacer(1, 20))
         content = content.replace('\n', '<br />')
         story.append(Paragraph(content, styles["Normal"]))
         story.append(Spacer(1, 15))
-        return story
+        section_nb += 1
+        return story, section_nb
         
     def __str__(self):
         return "Your problem is a Job Shop scheduling of {0} tasks through {1} machines.".format(self.nb_jobs, self.nb_machines)

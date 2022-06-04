@@ -77,7 +77,7 @@ class Data():
             return None
         
     def get_jobs_nb(self):
-        return len(self.get_job_durations()[1])
+        return len(self.get_job_durations())
     
     def get_machines_nb(self):
         return len(self.get_job_durations()[0]) - 1 
@@ -96,6 +96,3 @@ class Data():
 
         return "Job Shop scheduling with {} jobs and {} machines. \nThe durations data: \n".format(
             self.get_jobs_nb(), self.get_machines_nb()) + "\n".join(["\t".join(i) for i in data]) # print the data
-
-d = Data("jackson_job_shop_scheduling/tests/test_example/input.json")
-print(d)
