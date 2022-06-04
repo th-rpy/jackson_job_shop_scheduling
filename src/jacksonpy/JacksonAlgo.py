@@ -39,6 +39,7 @@ class JackAlgo():
         \n For each of these problems, the optimal order is calculated with the Johnson algorithm and this order is then applied to the basic problem to obtain the Cmax(k).\
         Then, it is enough to choose the best one on the whole Cmax(k)."
     nb_sec = 2
+    p = 0
     warnings.filterwarnings("ignore", category=FutureWarning)
 
     def __init__(self, duration_data, output_dir = 'output'):
@@ -76,7 +77,7 @@ class JackAlgo():
                            sum(list_dur[n][-1:-k:-1])])
         return (list_2)
     
-    def clean_data(self):
+    def prepareData(self):
         warnings.filterwarnings("ignore", category=FutureWarning)
         r = [i + 2 for i in range(self.nb_machines + 1 - 2)] # create a list of integers
         
@@ -89,10 +90,10 @@ class JackAlgo():
             
         return JackAlgo.list_cleaned # return the cleaned list of lists
     
-    def get_cmax_virtual(self):
+    def get_cmax_virtual(self, preparedData):
         warnings.filterwarnings("ignore", category=FutureWarning)
         cmaxValue_list, job_sequence, flatten_result = [], [], []
-        for T in self.clean_data():
+        for T in preparedData:
             sort_1 = sorted(T, key=operator.itemgetter(1))
             sort_2 = sorted(T, key=operator.itemgetter(2), reverse=True)
             
@@ -129,10 +130,10 @@ class JackAlgo():
             cmaxValue_list.append(cmax_values[-1][1])
             flatten_result.append(cmax_values[-1][1])
             
-        return [flatten_result, [job_sequence[i:i+self.nb_jobs] for i in range(0, 
-                                len(job_sequence), self.nb_jobs)], cmaxValue_list]
+        return flatten_result, [job_sequence[i:i+self.nb_jobs] for i in range(0, 
+                                len(job_sequence), self.nb_jobs)], cmaxValue_list
         
-    def solve(self):
+    def solve(self, flatten_result):
 
         global list_data_copy, gant_data, list_list_gant, nb_sec
         warnings.filterwarnings("ignore", category=FutureWarning)
@@ -147,11 +148,11 @@ class JackAlgo():
         table = self.prepare_table()
         story = add_table_to_pdf(table, story)
         story = self.add_section_to_pdf(story, "Visualizing Results with Gantt Charts: ", "", nb_sec)
-        flatten_result = self.get_cmax_virtual()[0].copy()
+        #flatten_result = self.get_cmax_virtual()[0].copy()
         list_data = []
         list_data_copy = []
         gant_data = []
-        p = 0
+        p = JackAlgo.p
         l_ = self.nb_jobs + 1
         klk, klks = {}, {}
         list_list_gant = []
@@ -307,6 +308,7 @@ class JackAlgo():
                                             #self.nb_machines 
     
     def add_virtual_results(self, lists):
+        
         styles = getSampleStyleSheet()
         __, _ ,result_final, dict_results = lists
         Story = list(lists[0][0]).copy()
@@ -349,7 +351,7 @@ class JackAlgo():
         doc = create_pdf_file()[0]
         doc.build(story)
         print('Done ;) ... \n')
-        print('The PDF file is saved in ' + os.getcwd() + 'output/Algo_Cds_Output.pdf')
+        print('The PDF file is saved in ' + os.getcwd() + '/output/Algo_Cds_Output.pdf')
     
     def prepare_table(self):
         data = [i.copy() for i in self.duration_data]
@@ -377,10 +379,9 @@ class JackAlgo():
         story.append(Paragraph(content, styles["Normal"]))
         story.append(Spacer(1, 15))
         section_nb += 1
+        
         return story, section_nb
         
     def __str__(self):
         return "Your problem is a Job Shop scheduling of {0} tasks through {1} machines.".format(self.nb_jobs, self.nb_machines)
     
-
-
