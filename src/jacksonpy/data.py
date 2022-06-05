@@ -45,6 +45,7 @@ class Data():
     def get_job_durations(self):
         
         global file , durations_sorted_int, durations_flatten
+        durations_sorted_int = []
         extension = os.path.splitext(self.path)[1]
         assert extension in ['.json', '.csv', '.txt'], "The extension of the file is not supported"
         try:

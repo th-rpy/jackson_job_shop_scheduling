@@ -4,13 +4,6 @@ from jacksonpy.utils import gant_list, create_dir, func_trait, create_pdf_file, 
 from jacksonpy.data import *
 from tqdm import tqdm
 import os
-import shutil
-import getpass
-import hashlib
-import sys
-import io
-import mimetypes
-import smtplib
 from random import randrange
 import numpy as np
 import matplotlib.pyplot as plt
@@ -29,7 +22,26 @@ import warnings
 class JackAlgo():
     
     """
+    Class to store the data of the job shop scheduling problem 
     
+    Args: 
+        path: path to the data file if you want to use a text/Json/Csv file to store data
+        
+    Returns:
+        durations_flatten: list of durations
+        durations_sorted_int: list of lists of integers: 2d-array of durations
+        
+    Examples:
+        >>> d = Data("data.txt") # data.json or data.csv
+        >>> d.get_job_durations() # get the durations: list of list of integers [[J1, dur1, dur2, dur3], [J2, dur1, dur2, dur3] ...]
+        >>> print(d) 
+           Job i	dur J/M1	dur J/M2	dur J/M3
+            [	1	,	 	7	,	 	1	,	 	6	]
+            [	2	,	 	4	,	 	3	,	 	2	]
+            [	3	,	 	3	,	 	2	,	 	4	]
+            [	4	,	 	8	,	 	2	,	 	1	]
+            [	5	,	 	5	,	 	1	,	 	3	] 
+
     """
     list_pre_cleaned = []
     list_cleaned = []
@@ -302,8 +314,8 @@ class JackAlgo():
                 plt.savefig("output/ImagesOutput/Gantt_Chart_virtual{0}_cmax_({1}).png".format(p, list_excel[-1][-1][-1]), bbox_inches='tight')
                 plt.clf()
                 pbar.update(100/(self.nb_machines-1))
-        print('Done ;) ... \n')
-        print('The Gantt Chart images re saved in ' + os.getcwd() + '/output/ImagesOutput/')
+        print('\n Done ;) ... \n')
+        print('The Gantt Chart images are saved in ' + os.getcwd() + '/output/ImagesOutput/')
         return story, list_data, dict(sorted(klks.items(), key=lambda item: item[1])), klk #, list_list_gant, list_data, gant_data, self.nb_jobs, 
                                             #self.nb_machines 
     
