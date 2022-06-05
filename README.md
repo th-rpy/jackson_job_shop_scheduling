@@ -1,4 +1,9 @@
-# jackson_job_shop_scheduling
+# PyJackson : Python Job Shop Scheduling Module
+
+[]: # Language: python
+[]: # Path: jackson_job_shop_scheduling\README.md
+
+Job Shop Scheduling Problem (JSS) with Jackson's Algorithm solving using Python >= 3.6.
 
 <div align="center">
 
@@ -7,10 +12,12 @@
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/master/.pre-commit-config.yaml)
 [![License](https://img.shields.io/github/license/th-rpy/jackson_job_shop_scheduling)](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/master/LICENSE)
 
+</div>
+
+<p>
 Implementation of a mathematical model in Python to solve an assignment problem in Job Shop environments. With its respective Gantt chart.
 A job shop consists of a set of distinct machines that process jobs. Each job is a series of tasks that require use of particular machines for known durations, and which must be completed in specified order. The job shop scheduling problem is to schedule the jobs on the machines to minimize the time necessary to process all jobs (i.e, the makespan) or some other metric of productivity. Job shop scheduling is one of the classic problems in Operations Research.
-
-</div>
+</p>
 
 ## Very first steps
 
@@ -167,12 +174,11 @@ This project is licensed under the terms of the `GNU GPL v3.0` license. See [LIC
 ## 📃 Citation
 
 ```bibtex
-@misc{jackson_job_shop_scheduling,
-  author = {PolyMtl},
+@misc{PyJackson,
+  author = {Saraei Thamer},
   title = {Implementation of a mathematical model in Python to solve an assignment problem in Job Shop environments. With its respective Gantt chart.},
   year = {2022},
   publisher = {S.Thamer},
-  journal = {Research Report},
   howpublished = {\url{https://github.com/th-rpy/jackson_job_shop_scheduling}}
 }
 ```
