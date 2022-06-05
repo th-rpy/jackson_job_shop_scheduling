@@ -13,7 +13,7 @@
 [![License](https://img.shields.io/github/license/th-rpy/jackson_job_shop_scheduling)](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/master/LICENSE)
 ![Coverage Report](assets/images/coverage.svg)
 
-Implementation of a mathematical model in Python to solve an assignment problem in Job Shop environments. With its respective Gantt chart. 
+Implementation of a mathematical model in Python to solve an assignment problem in Job Shop environments. With its respective Gantt chart.
 A job shop consists of a set of distinct machines that process jobs. Each job is a series of tasks that require use of particular machines for known durations, and which must be completed in specified order. The job shop scheduling problem is to schedule the jobs on the machines to minimize the time necessary to process all jobs (i.e, the makespan) or some other metric of productivity. Job shop scheduling is one of the classic problems in Operations Research.
 
 </div>
@@ -25,10 +25,11 @@ First of all, you need to install a few dependencies.
 - [Reportlab](https://pypi.org/project/reportlab/) : for generation PDF file.
 - [numpy](https://pypi.org/project/numpy/) : for matrix operations.
 - [pandas](https://pypi.org/project/pandas/) : for data manipulating.
-- [matplotlib](https://pypi.org/project/matplotlib/) : for plotting Gantt Chart. 
+- [matplotlib](https://pypi.org/project/matplotlib/) : for plotting Gantt Chart.
 
 ## 🚀 Features
-- Worked with multiple data formats: CSV, JSON and TEXT files. 
+
+- Worked with multiple data formats: CSV, JSON and TEXT files.
 - Plotting Gantt Chart for each solution found for all sub-problems(Virtual).
 - Generate a PDF file with the Gantt Charts for each solution found for all sub-problems(Virtual) and the optimal solution as well.
 
@@ -150,13 +151,18 @@ al.generate_pdf_file(
     results=result
 )  # generate a pdf file with the result of the problem
 ```
+
 ## Results
 
-- Gannt Chart for the optimal solution: 
-![Gantt Chart Output](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/ImagesOutput/Gantt_Chart_virtual1_cmax_47.png)
+- Gannt Chart for the optimal solution:
+  ![Gantt Chart Output](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/ImagesOutput/Gantt_Chart_virtual1_cmax_47.png)
 
 - PDF file with the Gantt Charts for each solution found for all sub-problems(Virtual):
-![PDF file Generated](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf)
+  <object data="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf" type="application/pdf" width="700px" height="700px">
+  <embed src="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf">
+    <p>Please download the PDF to view it: <a href="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf">Download PDF</a>.</p>
+  </embed>
+  </object>
 
 ## 🛡 License
 
