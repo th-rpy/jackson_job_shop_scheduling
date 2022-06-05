@@ -42,12 +42,8 @@ This project is licensed under the terms of the `GNU GPL v3.0` license. See [LIC
   author = {PolyMtl},
   title = {Implementation of a mathematical model in Python to solve an assignment problem in Job Shop environments. With its respective Gantt chart.},
   year = {2022},
-  publisher = {GitHub},
-  journal = {GitHub repository},
+  publisher = {S.Thamer},
+  journal = {Research Report},
   howpublished = {\url{https://github.com/th-rpy/jackson_job_shop_scheduling}}
 }
 ```
-
-## Credits [![🚀 Your next Python package needs a bleeding-edge project structure.](https://img.shields.io/badge/python--package--template-%F0%9F%9A%80-brightgreen)](https://github.com/TezRomacH/python-package-template)
-
-This project was generated with [`python-package-template`](https://github.com/TezRomacH/python-package-template)

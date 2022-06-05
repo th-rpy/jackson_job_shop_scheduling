@@ -396,4 +396,3 @@ class JackAlgo():
         
     def __str__(self):
         return "Your problem is a Job Shop scheduling of {0} tasks through {1} machines.".format(self.nb_jobs, self.nb_machines)
-    
