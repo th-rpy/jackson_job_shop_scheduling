@@ -53,7 +53,7 @@ pip install matplotlib
 ## Installation
 
 ```bash
-pip install PyJacksonAlgo==0.1.0
+pip install PyJacksonAlgo
 ```
 
 ## Usage
