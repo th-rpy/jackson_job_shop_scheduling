@@ -152,14 +152,9 @@ al.generate_pdf_file(
 ```
 ## Results
 
-- [Gantt Chart Image](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/ImagesOutput/Gantt_Chart_virtual1_cmax_(47).png) 
+- [![Gantt Chart Image]](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/ImagesOutput/Gantt_Chart_virtual1_cmax_(47).png) 
 
-- [PDF file]
-<object data="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf" type="application/pdf" width="700px" height="700px">
-    <embed src="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf">
-        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf">Download PDF</a>.</p>
-    </embed>
-</object>
+- [![PDF file]](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf)
 
 ## 🛡 License
 
