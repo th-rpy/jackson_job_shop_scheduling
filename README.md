@@ -3,15 +3,9 @@
 <div align="center">
 
 [![Build status](https://github.com/th-rpy/jackson_job_shop_scheduling/workflows/build/badge.svg?branch=master&event=push)](https://github.com/th-rpy/jackson_job_shop_scheduling/actions?query=workflow%3Abuild)
-[![Python Version](https://img.shields.io/pypi/pyversions/jackson_job_shop_scheduling.svg)](https://pypi.org/project/jackson_job_shop_scheduling/)
-[![Dependencies Status](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen.svg)](https://github.com/th-rpy/jackson_job_shop_scheduling/pulls?utf8=%E2%9C%93&q=is%3Apr%20author%3Aapp%2Fdependabot)
-
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Security: bandit](https://img.shields.io/badge/security-bandit-green.svg)](https://github.com/PyCQA/bandit)
+[![Python Version](https://img.shields.io/pypi/pyversions/jackson_job_shop_scheduling.svg)](https://test.pypi.org/project/PyJackson/1.3.0/)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/master/.pre-commit-config.yaml)
-[![Semantic Versions](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--versions-e10079.svg)](https://github.com/th-rpy/jackson_job_shop_scheduling/releases)
 [![License](https://img.shields.io/github/license/th-rpy/jackson_job_shop_scheduling)](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/master/LICENSE)
-![Coverage Report](assets/images/coverage.svg)
 
 Implementation of a mathematical model in Python to solve an assignment problem in Job Shop environments. With its respective Gantt chart.
 A job shop consists of a set of distinct machines that process jobs. Each job is a series of tasks that require use of particular machines for known durations, and which must be completed in specified order. The job shop scheduling problem is to schedule the jobs on the machines to minimize the time necessary to process all jobs (i.e, the makespan) or some other metric of productivity. Job shop scheduling is one of the classic problems in Operations Research.
