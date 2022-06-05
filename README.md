@@ -152,10 +152,10 @@ al.generate_pdf_file(
 
 ## Results
 
-- <h2>Gant Chart for the optimal solution:</h2>
-  ![Gantt Chart Output](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/ImagesOutput/Gantt_Chart_virtual1_cmax_47.png)
+- <h5>Gant Chart for the optimal solution:</h5>
+![Gantt Chart Output](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/ImagesOutput/Gantt_Chart_virtual1_cmax_47.png)
 
-- <h2>PDF file with the Gantt Charts for each solution found for all sub-problems(Virtual):</h2>
+- <h5>PDF file with the Gantt Charts for each solution found for all sub-problems(Virtual):</h5>
   <object data="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf" type="application/pdf" width="700px" height="700px">
   <embed src="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf">
     <p>Please download the PDF to view it: <a href="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf">Download PDF</a>.</p>
