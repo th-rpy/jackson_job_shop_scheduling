@@ -174,6 +174,7 @@ This project is licensed under the terms of the `GNU GPL v3.0` license. See [LIC
 @misc{PyJackson,
   author = {Saraei Thamer},
   title = {Implementation of a mathematical model in Python to solve an assignment problem in Job Shop environments. With its respective Gantt chart.},
+  Github = {th-rpy},
   year = {2022},
   howpublished = {\url{https://github.com/th-rpy/jackson_job_shop_scheduling}}
 }
