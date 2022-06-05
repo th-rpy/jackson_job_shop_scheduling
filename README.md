@@ -1,8 +1,5 @@
 # PyJackson : Python Job Shop Scheduling Module
 
-[]: # Language: python
-[]: # Path: jackson_job_shop_scheduling\README.md
-
 Job Shop Scheduling Problem (JSS) with Jackson's Algorithm solving using Python >= 3.6.
 
 <div align="center">
@@ -155,10 +152,10 @@ al.generate_pdf_file(
 
 ## Results
 
-- Gannt Chart for the optimal solution:
+- <h2>Gant Chart for the optimal solution:</h2>
   ![Gantt Chart Output](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/ImagesOutput/Gantt_Chart_virtual1_cmax_47.png)
 
-- PDF file with the Gantt Charts for each solution found for all sub-problems(Virtual):
+- <h2>PDF file with the Gantt Charts for each solution found for all sub-problems(Virtual):</h2>
   <object data="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf" type="application/pdf" width="700px" height="700px">
   <embed src="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf">
     <p>Please download the PDF to view it: <a href="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf">Download PDF</a>.</p>
@@ -178,7 +175,6 @@ This project is licensed under the terms of the `GNU GPL v3.0` license. See [LIC
   author = {Saraei Thamer},
   title = {Implementation of a mathematical model in Python to solve an assignment problem in Job Shop environments. With its respective Gantt chart.},
   year = {2022},
-  publisher = {S.Thamer},
   howpublished = {\url{https://github.com/th-rpy/jackson_job_shop_scheduling}}
 }
 ```
