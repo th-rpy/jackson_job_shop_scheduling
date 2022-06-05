@@ -34,7 +34,7 @@ First of all, you need to install a few dependencies.
 ## Installation
 
 ```bash
-pip install -i https://test.pypi.org/simple/ PyJackson==1.3.0
+pip install PyJacksonAlgo==0.1.0
 ```
 
 ## Usage
@@ -152,15 +152,12 @@ al.generate_pdf_file(
 
 ## Results
 
-- <h5>Gant Chart for the optimal solution:</h5>
-![Gantt Chart Output](https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/ImagesOutput/Gantt_Chart_virtual1_cmax_47.png)
+- <h5>Gantt Chart for the optimal solution:</h5>
+<img alt="" title="Gantt Diagram" src="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/ImagesOutput/Gantt_Chart_virtual1_cmax_47.png"/>
 
 - <h5>PDF file with the Gantt Charts for each solution found for all sub-problems(Virtual):</h5>
-  <object data="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf" type="application/pdf" width="700px" height="700px">
-  <embed src="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf">
     <p>Please download the PDF to view it: <a href="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf">Download PDF</a>.</p>
-  </embed>
-  </object>
+
 
 ## 🛡 License
 
