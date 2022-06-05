@@ -1,21 +1,16 @@
-from jacksonpy.data import *
-from jacksonpy.JacksonAlgo import *
-import json
-import os.path
+from jacksonpy import JacksonAlgo
 
 ########################## Example using text file ##########################
 
 # Reading and manipulating data
-data_path = (
-    "jackson_job_shop_scheduling/src/jacksonpy/input.txt"  # path to the data file
-)
-d = Data(data_path)  # create a Data object with the path to the data file
+data_path = "YOUR_PATH/input.txt"  # path to the data file
+d = JacksonAlgo.Data(data_path)  # create a Data object with the path to the data file
 data = (
     d.get_job_durations()
 )  # get the durations: list of list of integers [[J1, dur1, dur2, dur3], [J2, dur1, dur2, dur3] ...]
 
 # Solving the problem
-al = JackAlgo(data)  # create a JackAlgo object with the data
+al = JacksonAlgo.JackAlgo(data)  # create a JackAlgo object with the data
 
 print(al)  # print the problem details
 
@@ -34,17 +29,15 @@ al.generate_pdf_file(
 ########################## Example using Json file ##########################
 
 # Reading and manipulating data
-data_path = (
-    "jackson_job_shop_scheduling/src/jacksonpy/input.json"  # path to the data file
-)
-d = Data(data_path)  # create a Data object with the path to the data file
+data_path = "YOUR_PATH//input.json"  # path to the data file
+d = JacksonAlgo.Data(data_path)  # create a Data object with the path to the data file
 data = (
     d.get_job_durations()
 )  # get the durations: list of list of integers [[J1, dur1, dur2, dur3], [J2, dur1, dur2, dur3] ...]
 print(data)  # print the data
 
 # Solving the problem
-al = JackAlgo(data)  # create a JackAlgo object with the data
+al = JacksonAlgo.JackAlgo(data)  # create a JackAlgo object with the data
 
 print(al)  # print the problem details
 
@@ -71,7 +64,7 @@ data = [
 ]  # list of list of integers [[J1, dur1, dur2, dur3], [J2, dur1, dur2, dur3] ...]
 
 # Solving the problem
-al = JackAlgo(data)  # create a JackAlgo object with the data
+al = JacksonAlgo.JackAlgo(data)  # create a JackAlgo object with the data
 
 print(al)  # print the problem details
 
@@ -89,17 +82,17 @@ al.generate_pdf_file(
 ########################## Example using dictionary ##########################
 
 # Reading and manipulating data (defined as a lis of lists of integers)
-data = data = {
+data = {
     "Task 1": [3, 4, 6, 5],
     "Task 2": [2, 3, 6, 9],
     "Task 3": [8, 9, 2, 6],
     "Task 4": [7, 6, 3, 2],
     "Task 5": [3, 6, 4, 5],
     "Task 6": [5, 8, 7, 9],
-}  # list of list of integers [[J1, dur1, dur2, dur3], [J2, dur1, dur2, dur3] ...]
+}  # dictionary of lists of integers {'Task 1': [3, 4, 6, 5], 'Task 2': [2, 3, 6, 9], ...}
 
 # Solving the problem
-al = JackAlgo(data)  # create a JackAlgo object with the data
+al = JacksonAlgo.JackAlgo(data)  # create a JackAlgo object with the data
 
 print(al)  # print the problem details
 
