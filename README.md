@@ -21,9 +21,28 @@ A job shop consists of a set of distinct machines that process jobs. Each job is
 First of all, you need to install a few dependencies.
 
 - [Reportlab](https://pypi.org/project/reportlab/) : for generation PDF file.
+
+```bash
+pip install reportlab
+```
+
 - [numpy](https://pypi.org/project/numpy/) : for matrix operations.
+
+```bash
+pip install numpy
+```
+
 - [pandas](https://pypi.org/project/pandas/) : for data manipulating.
+
+```bash
+pip install pandas
+```
+
 - [matplotlib](https://pypi.org/project/matplotlib/) : for plotting Gantt Chart.
+
+```bash
+pip install matplotlib
+```
 
 ## 🚀 Features
 
@@ -153,11 +172,10 @@ al.generate_pdf_file(
 ## Results
 
 - <h5>Gantt Chart for the optimal solution:</h5>
-<img alt="" title="Gantt Diagram" src="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/ImagesOutput/Gantt_Chart_virtual1_cmax_47.png"/>
+  <img alt="" title="Gantt Diagram" src="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/ImagesOutput/Gantt_Chart_virtual1_cmax_47.png"/>
 
 - <h5>PDF file with the Gantt Charts for each solution found for all sub-problems(Virtual):</h5>
     <p>Please download the PDF to view it: <a href="https://github.com/th-rpy/jackson_job_shop_scheduling/blob/main/example/output/Algo_Cds_Output.pdf">Download PDF</a>.</p>
-
 
 ## 🛡 License
 
