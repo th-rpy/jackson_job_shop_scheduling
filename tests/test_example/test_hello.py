@@ -1,17 +1,9 @@
-import pytest
-from jacksonpy.utils import (
-    gant_list,
-    create_dir,
-    func_trait,
-    create_pdf_file,
-    add_table_to_pdf,
-)
-from jacksonpy.data import *
+from jacksonpy import JacksonAlgo
 
 
 def test_data_read_json():
     data_path = "jackson_job_shop_scheduling/tests/test_example/input.json"
-    d = Data(data_path)
+    d = JacksonAlgo.Data(data_path)
     assert d.get_job_durations() == [
         [1, 3, 4, 6, 5],
         [2, 2, 3, 6, 9],
@@ -24,7 +16,7 @@ def test_data_read_json():
 
 def test_data_read_txt():
     data_path = "jackson_job_shop_scheduling/tests/test_example/input.txt"
-    d = Data(data_path)
+    d = JacksonAlgo.Data(data_path)
     assert d.get_job_durations() == [
         [1, 7, 1, 6],
         [2, 4, 3, 2],
