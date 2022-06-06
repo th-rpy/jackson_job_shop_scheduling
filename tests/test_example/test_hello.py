@@ -2,7 +2,7 @@ from jacksonpy import JacksonAlgo
 
 
 def test_data_read_json():
-    data_path = "jackson_job_shop_scheduling/tests/test_example/input.json"
+    data_path = "jackson_job_shop_scheduling/example/input/input.json"
     d = JacksonAlgo.Data(data_path)
     assert d.get_job_durations() == [
         [1, 3, 4, 6, 5],
@@ -15,7 +15,7 @@ def test_data_read_json():
 
 
 def test_data_read_txt():
-    data_path = "jackson_job_shop_scheduling/tests/test_example/input.txt"
+    data_path = "jackson_job_shop_scheduling/example/input/input.txt"
     d = JacksonAlgo.Data(data_path)
     assert d.get_job_durations() == [
         [1, 7, 1, 6],
