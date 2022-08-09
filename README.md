@@ -1,4 +1,4 @@
-# PyJackson : Python Job Shop Scheduling Module
+# PyJackson : Python Job Shop Scheduling Library
 
 Job Shop Scheduling Problem (JSS) with Jackson's Algorithm solving using Python >= 3.6.
 
