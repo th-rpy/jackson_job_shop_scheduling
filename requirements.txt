@@ -2,3 +2,4 @@ reportlab
 numpy
 pandas
 matplotlib
+tqdm 

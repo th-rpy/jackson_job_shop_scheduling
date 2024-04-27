@@ -3,7 +3,7 @@ from jacksonpy import JacksonAlgo
 ########################## Example using text file ##########################
 
 # Reading and manipulating data
-data_path = "YOUR_PATH/input.txt"  # path to the data file
+data_path = "../example/input/input.txt"  # path to the data file
 d = JacksonAlgo.Data(data_path)  # create a Data object with the path to the data file
 data = (
     d.get_job_durations()
@@ -29,7 +29,7 @@ al.generate_pdf_file(
 ########################## Example using Json file ##########################
 
 # Reading and manipulating data
-data_path = "YOUR_PATH//input.json"  # path to the data file
+data_path = "../example/input/input.json"  # path to the data file
 d = JacksonAlgo.Data(data_path)  # create a Data object with the path to the data file
 data = (
     d.get_job_durations()
