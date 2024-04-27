@@ -33,100 +33,94 @@ from reportlab.lib.units import inch
 import warnings
 
 
-class JackAlgo:
-
+class JobShopScheduler:
     """
-    Class to solve job shop scheduling problem from  a list of lists of tasks.
+    Handles the scheduling for job shop problems using a heuristic based on sub-problems.
 
-    Args:
-        duration_data: list of lists of tasks. Each task is a (job,machine) pair.
-        output_dir: directory to save the output files: by default, the output files are saved in the current directory.
-    Returns:
-        PDF file with the results of the algorithm. The PDF file is saved in the output_dir directory.
-
-    Examples:
-        data_duration = {
-            "Task 1": [3, 4, 6, 5],
-            "Task 2": [2, 3, 6, 9],
-            "Task 3": [8, 9, 2, 6],
-            "Task 4": [7, 6, 3, 2],
-            "Task 5": [3, 6, 4, 5],
-            "Task 6": [5, 8, 7, 9],
-        }  # dictionary of lists of integers {'Task 1': [3, 4, 6, 5], 'Task 2': [2, 3, 6, 9], ...}
-
-        # Solving the problem
-        al = JacksonAlgo.JackAlgo(data_duration)  # create a JackAlgo object with the data
-
-        print(al)  # print the problem details
-
-        preparedData = al.prepareData()  # prepare the data for the algorithm
-        cmaxVirtual, _, __ = al.get_cmax_virtual(
-            preparedData
-        )  # get the cmaxVirtual result of the virtual sub-problems
-        result = al.solve(
-            cmaxVirtual
-        )  # solve the problem and save the result in the result variable
-        al.generate_pdf_file(
-            results=result
-        )  # generate a pdf file with the result of the problem
+    Attributes:
+        duration_data (list): A list of job durations.
+        nb_jobs (int): Number of jobs.
+        nb_machines (int): Number of machines per job.
+        output_dir (str): Directory path for outputs.
     """
 
-    list_pre_cleaned = []
-    list_cleaned = []
-    list_cleaned_ = []
-    Algo_details = "This heuristic simply consists in generating m-1 sub-problems of the 2-machine flow-shop type, solving them and selecting the best solution. \
-        The sub-problem k is defined by :\nProcessing time on the virtual machine 1 : pi1= the sum of pij (j in [1..k]) \nProcessing time on the virtual machine 2 : pi2= the sum of pij (j in [k+1 .. m]). \
-        \n For each of these problems, the optimal order is calculated with the Johnson algorithm and this order is then applied to the basic problem to obtain the Cmax(k).\
-        Then, it is enough to choose the best one on the whole Cmax(k)."
-    nb_sec = 2
-    p = 0
-    warnings.filterwarnings("ignore", category=FutureWarning)
+    def __init__(self, duration_data, output_dir='output'):
+        """
+        Initializes the JobShopScheduler with job duration data and output directory.
+        
+        Args:
+            duration_data (list or dict): Job duration data. If dict, format should map job to durations.
+            output_dir (str): Path to the output directory.
+        """
+        if isinstance(duration_data, dict):
+            # Convert dict to list format
+            duration_data = [[k + 1] + list(v) for k, v in enumerate(duration_data.values())]
 
-    def __init__(self, duration_data, output_dir="output"):
-
-        """ """
         self.duration_data = duration_data
-        if isinstance(self.duration_data, list):
-            self.nb_machines = len(self.duration_data[0]) - 1
-        elif isinstance(self.duration_data, dict):
-            self.nb_machines = len(list(self.duration_data.values())[0])
-            self.duration_data = [
-                [k + 1] + list(map(int, v[1]))
-                for k, v in enumerate(self.duration_data.items())
-            ]
-        self.nb_jobs = len(self.duration_data)
         self.output_dir = output_dir
+        self.validate_data()
 
-    def get_list(self):
+    def validate_data(self):
+        """
+        Validates the input duration_data to ensure all entries are correctly formatted.
+        
+        Raises:
+            ValueError: If duration_data is empty, not a list, or inconsistent in lengths.
+        """
+        if not self.duration_data:
+            raise ValueError("duration_data is empty")
 
-        assert self.duration_data is not None, "duration_data is None"
-        assert self.duration_data[0] is not None, "duration_data[0] is None"
-        assert (
-            len(self.duration_data[0]) == self.nb_machines + 1
-        ), "duration_data[0] is not of length {0}".format(self.nb_machines + 1)
-        assert isinstance(self.duration_data, list), "duration_data is not a list"
-        assert (
-            len(self.duration_data) == self.nb_jobs
-        ), "duration_data is not of length {0}".format(self.nb_jobs)
-        assert isinstance(self.duration_data[0], list), "duration_data is not a list"
+        if not isinstance(self.duration_data, list):
+            raise ValueError("duration_data must be a list")
 
-        list_ = []
-        for n in range(len(sum(self.duration_data, [])) // (self.nb_machines + 1)):
-            list_.append(
-                sum(self.duration_data, [])[
-                    n * (self.nb_machines + 1) : (n + 1) * (self.nb_machines + 1)
-                ]
-            )
-        return list_
+        length = len(self.duration_data[0])
+        for job in self.duration_data:
+            if not isinstance(job, list) or len(job) != length:
+                raise ValueError("All jobs must have the same number of machine durations including the job ID")
+        
+        self.nb_jobs = len(self.duration_data)
+        self.nb_machines = length - 1  # Assuming first element is the job id
 
-    def fun_calculate(self, k):
-        list_2 = []
-        list_dur = self.get_list()
-        for n in range(len(list_dur)):
-            list_2.append(
-                [list_dur[n][0], sum(list_dur[n][1:k]), sum(list_dur[n][-1:-k:-1])]
-            )
-        return list_2
+    def get_job_durations(self):
+        """
+        Retrieves the job durations.
+
+        Returns:
+            list: A list of job durations including job identifier.
+        """
+        return self.duration_data
+
+    def display_job_durations(self):
+        """
+        Prints the job durations in a formatted table.
+        """
+        header = ["Job ID"] + [f"M {i + 1}" for i in range(self.nb_machines)]
+        print("\t".join(header))
+        for job in self.duration_data:
+            print("\t".join(map(str, job)))
+    
+    def calculate_aggregated_durations(self, k):
+        """
+        Aggregates the machine durations for each job up to index `k` and from the end backwards to `k`.
+
+        Args:
+            k (int): The pivot index to calculate the sum up to (exclusive) and from the end to.
+
+        Returns:
+            list: A modified list where each job now includes its ID and two summed durations.
+        """
+        aggregated_durations = []
+        job_durations = self.get_job_durations()
+
+        for job in job_durations:
+            if k >= len(job):
+                raise ValueError("k is out of the valid range for job durations")
+            # Calculate sum from start up to k (exclusive) and from end to k (exclusive)
+            sum_first_k = sum(job[1:k+1])  # sum from first duration to kth duration (inclusive)
+            sum_last_k = sum(job[-k:]) if k != 0 else 0  # sum last k durations, handle k=0 case
+            aggregated_durations.append([job[0], sum_first_k, sum_last_k])
+
+        return aggregated_durations
 
     def prepareData(self):
         warnings.filterwarnings("ignore", category=FutureWarning)
@@ -135,17 +129,17 @@ class JackAlgo:
         ]  # create a list of integers
 
         for i in r:
-            JackAlgo.list_pre_cleaned = self.fun_calculate(i)  # get the list of lists
-            JackAlgo.list_cleaned.append(
-                JackAlgo.list_pre_cleaned
+            JobShopScheduler.list_pre_cleaned = self.fun_calculate(i)  # get the list of lists
+            JobShopScheduler.list_cleaned.append(
+                JobShopScheduler.list_pre_cleaned
             )  # add the list to the list of lists
 
-        for i in range(len(JackAlgo.list_cleaned[0]) // (self.nb_jobs)):
-            JackAlgo.list_cleaned_.append(
-                JackAlgo.list_cleaned[0][i * (self.nb_jobs) : (i + 1) * (self.nb_jobs)]
+        for i in range(len(JobShopScheduler.list_cleaned[0]) // (self.nb_jobs)):
+            JobShopScheduler.list_cleaned_.append(
+                JobShopScheduler.list_cleaned[0][i * (self.nb_jobs) : (i + 1) * (self.nb_jobs)]
             )
 
-        return JackAlgo.list_cleaned  # return the cleaned list of lists
+        return JobShopScheduler.list_cleaned  # return the cleaned list of lists
 
     def get_cmax_virtual(self, preparedData):
         warnings.filterwarnings("ignore", category=FutureWarning)
@@ -206,9 +200,9 @@ class JackAlgo:
         warnings.filterwarnings("ignore", category=FutureWarning)
         create_dir(self.output_dir)
         _, story = create_pdf_file()
-        nb_sec = JackAlgo.nb_sec + 1
+        nb_sec = JobShopScheduler.nb_sec + 1
         story, nb_sec = self.add_section_to_pdf(
-            story, "Algorithm:", JackAlgo.Algo_details, nb_sec
+            story, "Algorithm:", JobShopScheduler.Algo_details, nb_sec
         )
 
         story, nb_sec = self.add_section_to_pdf(
@@ -223,7 +217,7 @@ class JackAlgo:
         list_data = []
         list_data_copy = []
         gant_data = []
-        p = JackAlgo.p
+        p = JobShopScheduler.p
         l_ = self.nb_jobs + 1
         klk, klks = {}, {}
         list_list_gant = []
