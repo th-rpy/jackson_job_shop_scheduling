@@ -1,12 +1,6 @@
 import csv
-import os
-import shutil
-import getpass
-import hashlib
-import sys
-import io
-import operator
 import json
+import os
 
 
 class Data:
@@ -35,61 +29,33 @@ class Data:
     """
 
     def __init__(self, path):
-
-        """
-        path: path to the data file if you want
-            to use a text file to store data;
-        """
         self.path = path
+        self._job_durations = None
+
+    def read_json(self):
+        with open(self.path) as f:
+            data = json.load(f)
+        return [[k + 1] + list(map(int, v[1])) for k, v in enumerate(data.items())]
+
+    def read_csv_or_txt(self):
+        with open(self.path, "r") as file:
+            if self.path.endswith('.csv'):
+                reader = csv.reader(file)
+            else:
+                reader = (line.split() for line in file)
+            return sorted([[int(j) for j in i] for i in reader], key=lambda x: x[0])
 
     def get_job_durations(self):
-
-        global file, durations_sorted_int, durations_flatten
-        durations_sorted_int = []
+        if self._job_durations is not None:
+            return self._job_durations
         extension = os.path.splitext(self.path)[1]
-        assert extension in [
-            ".json",
-            ".csv",
-            ".txt",
-        ], "The extension of the file is not supported"
-        try:
-
-            if extension == ".json":
-                with open(self.path) as f:
-                    data = json.load(f)
-
-                durations_sorted_int = [
-                    [k + 1] + list(map(int, v[1])) for k, v in enumerate(data.items())
-                ]
-                return durations_sorted_int
-
-            else:
-                file = open(self.path, "r")  # open the file
-                Csv = csv.reader(file, delimiter=",")  # read the file
-                durations_sorted = sorted(
-                    Csv, key=operator.itemgetter(0)
-                )  # sort the file by job number
-                nb_jobs = len(durations_sorted)  # get the number of jobs
-                durations_sorted = sorted(
-                    durations_sorted, key=lambda x: int(x[0])
-                )  # sort the file by job number
-                durations_sorted_int = [
-                    [int(i) for i in lj] for lj in durations_sorted
-                ]  # convert to a list of lists of integers
-                durations_flatten = []  # create a list to store the durations
-                for i in range(len(durations_sorted)):
-                    for j in range(len(durations_sorted[i])):
-                        durations_flatten.append(
-                            durations_sorted_int[i][j]
-                        )  # add the durations to the list
-                return durations_sorted_int
-
-        except FileNotFoundError:
-            print("File name not found")  # if the file is not found
-            return None
-        except IOError:
-            print("Open file error")  # if the file is not open
-            return None
+        if extension == ".json":
+            self._job_durations = self.read_json()
+        elif extension in [".csv", ".txt"]:
+            self._job_durations = self.read_csv_or_txt()
+        else:
+            raise ValueError("Unsupported file extension.")
+        return self._job_durations
 
     def get_jobs_nb(self):
         return len(self.get_job_durations())
@@ -98,19 +64,8 @@ class Data:
         return len(self.get_job_durations()[0]) - 1
 
     def __str__(self):
-
-        durations = self.get_job_durations()  # get the durations
-        list_jobs = ["Job i"]  # create a list to store the jobs
-        for i in range(1, len(durations[0])):
-            list_jobs.append("dur J/M{0}".format(i))  # add the jobs to the list
-
-        data = []  # create a list to store the data
-        data.append(list_jobs)  # add the jobs to the list
-        for i in durations:
-            data.append(str(i))  # add the durations to the list
-
-        return "Job Shop scheduling with {} jobs and {} machines. \nThe durations data: \n".format(
-            self.get_jobs_nb(), self.get_machines_nb()
-        ) + "\n".join(
-            ["\t".join(i) for i in data]
-        )  # print the data)
+        durations = self.get_job_durations()
+        header = ["Job i"] + [f"dur J/M{i}" for i in range(1, len(durations[0]))]
+        data = [header] + [list(map(str, job)) for job in durations]
+        description = f"Job Shop scheduling with {self.get_jobs_nb()} jobs and {self.get_machines_nb()} machines. \nThe durations data:\n"
+        return description + "\n".join("\t".join(line) for line in data)

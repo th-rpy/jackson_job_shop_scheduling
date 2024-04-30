@@ -1,20 +1,22 @@
-from jacksonpy import JacksonAlgo
-
+from jacksonpy.JacksonAlgo import JobShopScheduler
+from jacksonpy.data import Data
 ########################## Example using text file ##########################
 
 # Reading and manipulating data
 data_path = "../example/input/input.txt"  # path to the data file
-d = JacksonAlgo.Data(data_path)  # create a Data object with the path to the data file
+d = Data(data_path)  # create a Data object with the path to the data file
 data = (
     d.get_job_durations()
 )  # get the durations: list of list of integers [[J1, dur1, dur2, dur3], [J2, dur1, dur2, dur3] ...]
 
 # Solving the problem
-al = JacksonAlgo.JackAlgo(data)  # create a JackAlgo object with the data
+al = JobShopScheduler(data)  # create a JackAlgo object with the data
 
 print(al)  # print the problem details
+al.display_job_durations() # display Data
+print(d.__str__())
 
-preparedData = al.prepareData()  # prepare the data for the algorithm
+preparedData = al.prepare_data()  # prepare the data for the algorithm
 cmaxVirtual, _, __ = al.get_cmax_virtual(
     preparedData
 )  # get the cmaxVirtual result of the virtual sub-problems
@@ -30,18 +32,20 @@ al.generate_pdf_file(
 
 # Reading and manipulating data
 data_path = "../example/input/input.json"  # path to the data file
-d = JacksonAlgo.Data(data_path)  # create a Data object with the path to the data file
+d = Data(data_path)  # create a Data object with the path to the data file
 data = (
     d.get_job_durations()
 )  # get the durations: list of list of integers [[J1, dur1, dur2, dur3], [J2, dur1, dur2, dur3] ...]
 print(data)  # print the data
+al.display_job_durations() # display Data
+
 
 # Solving the problem
-al = JacksonAlgo.JackAlgo(data)  # create a JackAlgo object with the data
+al = JobShopScheduler(data)  # create a JackAlgo object with the data
 
 print(al)  # print the problem details
 
-preparedData = al.prepareData()  # prepare the data for the algorithm
+preparedData = al.prepare_data()  # prepare the data for the algorithm
 cmaxVirtual, _, __ = al.get_cmax_virtual(
     preparedData
 )  # get the cmaxVirtual result of the virtual sub-problems
@@ -64,11 +68,12 @@ data = [
 ]  # list of list of integers [[J1, dur1, dur2, dur3], [J2, dur1, dur2, dur3] ...]
 
 # Solving the problem
-al = JacksonAlgo.JackAlgo(data)  # create a JackAlgo object with the data
+al = JobShopScheduler(data)  # create a JackAlgo object with the data
 
 print(al)  # print the problem details
+al.display_job_durations() # display Data
 
-preparedData = al.prepareData()  # prepare the data for the algorithm
+preparedData = al.prepare_data()  # prepare the data for the algorithm
 cmaxVirtual, _, __ = al.get_cmax_virtual(
     preparedData
 )  # get the cmaxVirtual result of the virtual sub-problems
@@ -92,11 +97,12 @@ data = {
 }  # dictionary of lists of integers {'Task 1': [3, 4, 6, 5], 'Task 2': [2, 3, 6, 9], ...}
 
 # Solving the problem
-al = JacksonAlgo.JackAlgo(data)  # create a JackAlgo object with the data
+al = JobShopScheduler(data)  # create a JackAlgo object with the data
 
 print(al)  # print the problem details
+al.display_job_durations() # display Data
 
-preparedData = al.prepareData()  # prepare the data for the algorithm
+preparedData = al.prepare_data()  # prepare the data for the algorithm
 cmaxVirtual, _, __ = al.get_cmax_virtual(
     preparedData
 )  # get the cmaxVirtual result of the virtual sub-problems

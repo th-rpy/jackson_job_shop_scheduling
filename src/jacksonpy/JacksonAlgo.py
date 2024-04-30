@@ -1,36 +1,38 @@
-"""Example of code."""
-
-from jacksonpy.utils import (
-    gant_list,
-    create_dir,
-    func_trait,
-    create_pdf_file,
-    add_table_to_pdf,
-)
-from jacksonpy.data import *
-from tqdm import tqdm
-import os
-from random import randrange
-import numpy as np
-import matplotlib.pyplot as plt
-import csv
 import operator
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from reportlab.lib import colors as cl
-from reportlab.lib.enums import TA_JUSTIFY
-from reportlab.lib.pagesizes import letter
+import os
+import warnings
+
+import matplotlib.pyplot as plt
+import numpy as np
+from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import (
-    SimpleDocTemplate,
     Paragraph,
     Spacer,
     Image,
-    Table,
-    TableStyle,
 )
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-import warnings
+from tqdm import tqdm
+
+from jacksonpy.utils import gant_list, create_dir, func_trait, create_pdf_file, add_table_to_pdf
+
+
+def add_section_to_pdf(story, title, content, section_nb):
+
+    styles = getSampleStyleSheet()
+    story.append(
+        Paragraph(
+            "<font size=15 color=black>{}</font>".format(
+                str(section_nb) + ".   " + title
+            ),
+            styles["Normal"],
+        )
+    )
+    story.append(Spacer(1, 20))
+    content = content.replace("\n", "<br />")
+    story.append(Paragraph(content, styles["Normal"]))
+    story.append(Spacer(1, 15))
+    section_nb += 1
+
+    return story, section_nb
 
 
 class JobShopScheduler:
@@ -44,14 +46,20 @@ class JobShopScheduler:
         output_dir (str): Directory path for outputs.
     """
 
+    nb_sec = 2
+    p = 0
+
     def __init__(self, duration_data, output_dir='output'):
         """
         Initializes the JobShopScheduler with job duration data and output directory.
-        
+
         Args:
             duration_data (list or dict): Job duration data. If dict, format should map job to durations.
             output_dir (str): Path to the output directory.
         """
+        self.list_cleaned = None
+        self.nb_machines = None
+        self.nb_jobs = None
         if isinstance(duration_data, dict):
             # Convert dict to list format
             duration_data = [[k + 1] + list(v) for k, v in enumerate(duration_data.values())]
@@ -63,7 +71,7 @@ class JobShopScheduler:
     def validate_data(self):
         """
         Validates the input duration_data to ensure all entries are correctly formatted.
-        
+
         Raises:
             ValueError: If duration_data is empty, not a list, or inconsistent in lengths.
         """
@@ -77,18 +85,48 @@ class JobShopScheduler:
         for job in self.duration_data:
             if not isinstance(job, list) or len(job) != length:
                 raise ValueError("All jobs must have the same number of machine durations including the job ID")
-        
+
         self.nb_jobs = len(self.duration_data)
         self.nb_machines = length - 1  # Assuming first element is the job id
 
-    def get_job_durations(self):
+    def problem_details(self):
         """
-        Retrieves the job durations.
+        Constructs a summary of the job scheduling problem context.
 
         Returns:
-            list: A list of job durations including job identifier.
+            tuple: Contains two strings, the first is a header message and the second is a detailed
+                   description of the problem including the number of jobs and machines, and
+                   a note about the tasks' durations representation.
         """
-        return self.duration_data
+        # Context message
+        context = "Your Problem Details:"
+
+        # Formatting the details message
+        details = f"Your problem is a job scheduling problem with {self.nb_jobs} jobs and {self.nb_machines} machines.\n" \
+                  "This table resumes the tasks' durations. Each task is a (job, machine) pair."
+
+        return context, details
+
+    def get_job_durations(self):
+        # Validate the structure and content of duration_data
+        assert isinstance(self.duration_data, list), "duration_data is not a list"
+        assert self.duration_data is not None, "duration_data is None"
+        assert all(isinstance(job, list) for job in self.duration_data), "Not all elements in duration_data are lists"
+        assert len(
+            self.duration_data) == self.nb_jobs, f"Expected {self.nb_jobs} jobs, but found {len(self.duration_data)}"
+        assert all(len(job) == self.nb_machines + 1 for job in self.duration_data), \
+            f"Each job should have {self.nb_machines + 1} durations"
+
+        # Flattening the list of job durations just once
+        flat_durations = sum(self.duration_data, [])
+
+        # Calculate job durations based on the number of machines
+        job_durations = [
+            flat_durations[i * (self.nb_machines + 1): (i + 1) * (self.nb_machines + 1)]
+            for i in range(len(flat_durations) // (self.nb_machines + 1))
+        ]
+
+        return job_durations
 
     def display_job_durations(self):
         """
@@ -98,7 +136,7 @@ class JobShopScheduler:
         print("\t".join(header))
         for job in self.duration_data:
             print("\t".join(map(str, job)))
-    
+
     def calculate_aggregated_durations(self, k):
         """
         Aggregates the machine durations for each job up to index `k` and from the end backwards to `k`.
@@ -122,77 +160,78 @@ class JobShopScheduler:
 
         return aggregated_durations
 
-    def prepareData(self):
+    def prepare_data(self):
+        """
+        Prepares data by aggregating job durations for each machine and then transposing the result.
+        This transformation makes the data structured by jobs rather than by machines.
+
+        Returns:
+            list of list: A list where each sub-list contains aggregated job durations for each machine,
+                          restructured to group by jobs across machines.
+        """
+        # Using a list comprehension to generate and aggregate durations more concisely
+        aggregated_durations = [self.calculate_aggregated_durations(i) for i in range(2, self.nb_machines + 1)]
+
+        # Transposing the matrix to group by jobs instead of machines
+        # The use of zip with list unpacking (*) efficiently handles the transposition
+        transposed_list = list(map(list, zip(*aggregated_durations)))
+
+        # Storing the result in an instance variable, though consider if this is necessary
+        # as the data is also returned by the function. If not used elsewhere, this line can be omitted.
+        self.list_cleaned = transposed_list
+
+        return transposed_list
+
+    def get_cmax_virtual(self, prepared_data):
+        """
+        Calculates the cumulative maximum completion time (cmax) for job sequences on various machines.
+        This function organizes jobs into optimal sequences based on their processing times and priorities,
+        then computes the cmax for each sequence.
+
+        Args:
+            prepared_data (list): List of job data where each element contains tuples of (job_id, first_duration, s
+            econd_duration).
+
+        Returns:
+            tuple: Contains flattened result of job sequences, job sequences per machine, and list of cmax values for
+            each machine.
+        """
         warnings.filterwarnings("ignore", category=FutureWarning)
-        r = [
-            i + 2 for i in range(self.nb_machines + 1 - 2)
-        ]  # create a list of integers
+        all_cmax_values, all_job_sequences, overall_job_results = [], [], []
 
-        for i in r:
-            JobShopScheduler.list_pre_cleaned = self.fun_calculate(i)  # get the list of lists
-            JobShopScheduler.list_cleaned.append(
-                JobShopScheduler.list_pre_cleaned
-            )  # add the list to the list of lists
+        for jobs in prepared_data:
+            # Sort jobs by their first and second durations to prioritize processing
+            jobs_sorted_by_first = sorted(jobs, key=lambda x: x[1])
+            jobs_sorted_by_second = sorted(jobs, key=lambda x: x[2], reverse=True)
 
-        for i in range(len(JobShopScheduler.list_cleaned[0]) // (self.nb_jobs)):
-            JobShopScheduler.list_cleaned_.append(
-                JobShopScheduler.list_cleaned[0][i * (self.nb_jobs) : (i + 1) * (self.nb_jobs)]
-            )
+            # Create sequences based on duration comparisons
+            sequence_a = [job for job in jobs_sorted_by_first if job[1] <= job[2]]
+            sequence_b = [job for job in jobs_sorted_by_second if job[1] > job[2]]
 
-        return JobShopScheduler.list_cleaned  # return the cleaned list of lists
+            # Final job sequence is A followed by B
+            final_sequence = sequence_a + sequence_b
+            job_ids_sequence = [job[0] for job in final_sequence]
+            all_job_sequences.extend(job_ids_sequence)
 
-    def get_cmax_virtual(self, preparedData):
-        warnings.filterwarnings("ignore", category=FutureWarning)
-        cmaxValue_list, job_sequence, flatten_result = [], [], []
-        for T in preparedData:
-            sort_1 = sorted(T, key=operator.itemgetter(1))
-            sort_2 = sorted(T, key=operator.itemgetter(2), reverse=True)
+            # Compute start and end times for each job in the final sequence
+            start_times, cmax_intervals = [0], []
+            for index, job in enumerate(final_sequence):
+                start_time = start_times[-1] if index == 0 else start_times[-1] + final_sequence[index - 1][1]
+                start_times.append(start_time)
+                completion_time = start_time + job[2]
+                cmax_intervals.append(completion_time)
 
-            A, B, C = [], [], []
-            # append to A
-            for j in range(len(sort_1)):
-                if int(sort_1[j][1]) < int(sort_1[j][2]) or int(sort_1[j][1]) == int(
-                    sort_1[j][2]
-                ):
-                    A.append(sort_1[j])
+            # The last completion time in cmax_intervals is the cmax for this sequence
+            all_cmax_values.append(cmax_intervals[-1])
+            overall_job_results.extend(job_ids_sequence)
+            overall_job_results.append(cmax_intervals[-1])
 
-            # Append to B
-            l = len(sort_2)
-            for j in range(l):
-                if int(sort_2[j][1]) > int(sort_2[j][2]):
-                    B.append(sort_2[j])
+        job_sequences_per_machine = [
+            all_job_sequences[i: i + self.nb_jobs]
+            for i in range(0, len(all_job_sequences), self.nb_jobs)
+        ]
 
-            # Extend A and B
-            C = A + B
-            for i in range(len(C)):
-                job_sequence.append(C[i][0])
-                flatten_result.append(C[i][0])
-
-            job_dur, cmax_values = [], []
-
-            job_dur.append([0, C[0][1]])
-            for i in range(1, len(C)):
-                job_dur.append([job_dur[i - 1][1], job_dur[i - 1][1] + C[i][1]])
-            cmax_values.append([job_dur[0][1], job_dur[0][1] + C[0][2]])
-            for i in range(1, len(job_dur)):
-                if job_dur[i][1] >= cmax_values[i - 1][1]:
-                    cmax_values.append([job_dur[i][1], job_dur[i][1] + C[i][2]])
-                else:
-                    cmax_values.append(
-                        [cmax_values[i - 1][1], cmax_values[i - 1][1] + C[i][2]]
-                    )
-            # Save the cmax value
-            cmaxValue_list.append(cmax_values[-1][1])
-            flatten_result.append(cmax_values[-1][1])
-
-        return (
-            flatten_result,
-            [
-                job_sequence[i : i + self.nb_jobs]
-                for i in range(0, len(job_sequence), self.nb_jobs)
-            ],
-            cmaxValue_list,
-        )
+        return overall_job_results, job_sequences_per_machine, all_cmax_values
 
     def solve(self, flatten_result):
 
@@ -201,16 +240,12 @@ class JobShopScheduler:
         create_dir(self.output_dir)
         _, story = create_pdf_file()
         nb_sec = JobShopScheduler.nb_sec + 1
-        story, nb_sec = self.add_section_to_pdf(
-            story, "Algorithm:", JobShopScheduler.Algo_details, nb_sec
-        )
-
-        story, nb_sec = self.add_section_to_pdf(
+        story, nb_sec = add_section_to_pdf(
             story, self.problem_details()[0], self.problem_details()[1], nb_sec
         )
         table = self.prepare_table()
         story = add_table_to_pdf(table, story)
-        story = self.add_section_to_pdf(
+        story = add_section_to_pdf(
             story, "Visualizing Results with Gantt Charts: ", "", nb_sec
         )
         # flatten_result = self.get_cmax_virtual()[0].copy()
@@ -242,9 +277,9 @@ class JobShopScheduler:
                 # print(list_data[p])
                 list_data_copy = list_data[p][:-1]
                 gant_data = []
-                # print(fl_1)
-                for i in list_data_copy:
-                    gant_data.append(self.get_list()[i - 1])
+                print(list_data_copy)
+                for idx, i in enumerate(list_data_copy):
+                    gant_data.append(self.get_job_durations()[idx])
                 # print(gant_data)
                 lc = []
                 for j in gant_data:
@@ -252,7 +287,7 @@ class JobShopScheduler:
                         lc.append([j[0], j[i], j[i + 1]])
 
                 # print(lc)
-                b = len(self.get_list()[0]) - 2
+                b = len(self.get_job_durations()[0]) - 2
                 c = len(list_data_copy)
                 lcf = []
                 for j in range(0, b):
@@ -262,7 +297,6 @@ class JobShopScheduler:
                         x += b
 
                 cc = lcf[0:c]
-                # print("rfrfr",cc)
                 db1 = gant_list(cc)[0]
                 db3 = gant_list(cc)[1]
                 list_excel = [db1, db3]
@@ -454,10 +488,11 @@ class JobShopScheduler:
                 break
         idx = paths.index(min(paths))
         Story.append(Spacer(1, 12))
-        Story = self.add_section_to_pdf(
+        Story = add_section_to_pdf(
             Story,
             "Final Scheduling Result:",
-            "To conclude, among the results of the subproblems, we retain the following optimal sequence solution :|| {0} || with a value of Cmax = {1} ".format(
+            "To conclude, among the results of the subproblems, we retain the following optimal sequence solution :|| "
+            "{0} || with a value of Cmax = {1} ".format(
                 result_final[0][0], result_final[0][1]
             ),
             nb_sec,
@@ -490,33 +525,6 @@ class JobShopScheduler:
             data[i][0] = "J " + str(data[i][0])
         data.insert(0, machines)
         return data
-
-    def problem_details(self):
-        cntx = "Your Problem Details:"
-        details = "Your problem is a job scheduling problem with {0} jobs and {1} machines.\n This table resume the \
-        tasks durations. Each task is a (job,machine) pair.".format(
-            self.nb_jobs, self.nb_machines
-        )
-        return cntx, details
-
-    def add_section_to_pdf(self, story, title, content, section_nb):
-
-        styles = getSampleStyleSheet()
-        story.append(
-            Paragraph(
-                "<font size=15 color=black>{}</font>".format(
-                    str(section_nb) + ".   " + title
-                ),
-                styles["Normal"],
-            )
-        )
-        story.append(Spacer(1, 20))
-        content = content.replace("\n", "<br />")
-        story.append(Paragraph(content, styles["Normal"]))
-        story.append(Spacer(1, 15))
-        section_nb += 1
-
-        return story, section_nb
 
     def __str__(self):
         return "Your problem is a Job Shop scheduling of {0} tasks through {1} machines.".format(
